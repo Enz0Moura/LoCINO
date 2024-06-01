@@ -54,23 +54,28 @@ void setup() {
 
   rf95.setTxPower(14, false);
   rf95.setModemConfig(RH_RF95::Bw125Cr45Sf128);
-  Serial.println("Setup completo");
+  Serial.println("READY");
 }
 
 void loop() {
-  if (Serial.available() >= 32) { // Esperar até que todos os bytes da mensagem sejam recebidos
-    uint8_t received_message[32];
-    Serial.readBytes(received_message, 32);
-    
+  if (Serial.available() >= 17) { // Esperar até que todos os bytes da mensagem sejam recebidos, incluindo cabeçalho
+    uint8_t received_message[17];
+    Serial.readBytes(received_message, 17);
+    Serial.println("ACK");
+
+    // Ignorar o cabeçalho
+    uint8_t message_payload[17];
+    memcpy(message_payload, received_message + 2, 15);
+
     // Enviar a mensagem via LoRa
     Serial.print("Enviando mensagem: ");
-    for (uint8_t i = 0; i < sizeof(received_message); i++) {
-      Serial.print(received_message[i], HEX);
+    for (uint8_t i = 0; i < sizeof(message_payload); i++) {
+      Serial.print(message_payload[i], HEX);
       Serial.print(" ");
     }
     Serial.println();
 
-    rf95.send(received_message, sizeof(received_message));
+    rf95.send(message_payload, sizeof(message_payload));
     rf95.waitPacketSent();
   }
 

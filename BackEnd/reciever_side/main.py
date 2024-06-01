@@ -2,7 +2,7 @@ from BackEnd.message.model import Message
 import serial
 
 def receive_and_store_message():
-    arduino_port = find_arduino()
+    arduino_port = 'COM4'
     if arduino_port:
         print(f"Arduino encontrado na porta: {arduino_port}")
 

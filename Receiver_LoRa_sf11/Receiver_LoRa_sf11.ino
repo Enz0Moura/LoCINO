@@ -16,12 +16,14 @@ void setup()
 
   while (!Serial);
   delay(100);
-  
+
+  Serial.println("Iniciando LoRa...");
+
   digitalWrite(RFM95_RST, LOW);
   delay(10);
   digitalWrite(RFM95_RST, HIGH);
   delay(10);
-  
+
   if (!rf95.init()) {
     Serial.println("LoRa radio init failed");
     while (1);
@@ -38,6 +40,7 @@ void setup()
 
   rf95.setTxPower(14, false);
   rf95.setModemConfig(RH_RF95::Bw125Cr45Sf128);
+  Serial.println("Setup completo");
 }
 
 void loop()
@@ -47,13 +50,13 @@ void loop()
     uint8_t len = sizeof(buf);
 
     if (rf95.recv(buf, &len)) {
-      Serial.print("Received message: ");
+      Serial.print("Mensagem recebida: ");
       for (uint8_t i = 0; i < len; i++) {
         Serial.print((char)buf[i]);
       }
       Serial.println();
     } else {
-      Serial.println("Receive failed");
+      Serial.println("Falha na recepção");
     }
   }
   smartDelay(250);
@@ -63,6 +66,6 @@ static void smartDelay(unsigned long ms)
 {
   unsigned long start = millis();
   while (millis() - start < ms) {
-    // adicionar qualquer processamento contínuo necessário
+    // Aqui pode-se adicionar qualquer processamento contínuo necessário
   }
 }

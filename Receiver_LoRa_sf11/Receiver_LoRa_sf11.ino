@@ -41,9 +41,6 @@ void setup()
   rf95.setTxPower(14, false);
   rf95.setModemConfig(RH_RF95::Bw125Cr45Sf128);
   Serial.println("Setup completo");
-
-  // Envia uma mensagem indicando que está pronto para receber dados
-  Serial.println("READY");
 }
 
 void loop()

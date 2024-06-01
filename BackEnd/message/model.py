@@ -1,9 +1,6 @@
-import serial
 from construct import BitStruct, Flag, BitsInteger
-from message.strategies import cord_to_24bit, cord_from_24bit, find_arduino
+from strategies import cord_from_24bit, cord_to_24bit
 
-
-# Definição da estrutura da mensagem
 message_schema = BitStruct(
     "message_type" / Flag,
     "id" / BitsInteger(15),
@@ -40,31 +37,3 @@ class Message:
         data = dict(parsed_data)
         data.pop('_io', None)
         return data
-
-# Exemplo de uso
-arduino_port = find_arduino()
-if arduino_port:
-    print(f"Arduino encontrado na porta: {arduino_port}")
-
-    msg = Message(
-        message_type=True,
-        id=1,
-        latitude=50.1234,
-        longitude=8.1234,
-        group_flag=False,
-        record_time=12345,
-        max_records=2047,
-        hop_count=15,
-        channel=3,
-        location_time=6789,
-        help_flag=2,
-        battery=15
-    )
-    serialized_message = msg.build()
-
-    # Envia a mensagem serializada via porta serial
-    with serial.Serial(arduino_port, 9600, timeout=1) as ser:
-        ser.write(serialized_message)
-        print("Mensagem enviada: ", serialized_message)
-else:
-    print("Arduino não encontrado")

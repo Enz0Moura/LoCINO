@@ -23,12 +23,11 @@ struct Message {
   unsigned int battery: 4;
 };
 
-void setup() 
-{
+void setup() {
   pinMode(RFM95_RST, OUTPUT);
   digitalWrite(RFM95_RST, HIGH);
   Serial.begin(9600);
-
+  
   while (!Serial);
   delay(100);
 
@@ -58,50 +57,22 @@ void setup()
   Serial.println("Setup completo");
 }
 
-void loop()
-{
-  // Criar e preencher a mensagem
-  Message message;
-  message.message_type = 1;
-  message.id = 1;
-  message.latitude = 0x50D1F0; // Exemplo de coordenada 50.1234
-  message.longitude = 0x081F36; // Exemplo de coordenada 8.1234
-  message.group_flag = 0;
-  message.record_time = 12345;
-  message.max_records = 2047;
-  message.hop_count = 15;
-  message.channel = 3;
-  message.location_time = 6789;
-  message.help_flag = 2;
-  message.battery = 15;
+void loop() {
+  if (Serial.available() >= 32) { // Esperar até que todos os bytes da mensagem sejam recebidos
+    uint8_t received_message[32];
+    Serial.readBytes(received_message, 32);
+    
+    // Enviar a mensagem via LoRa
+    Serial.print("Enviando mensagem: ");
+    for (uint8_t i = 0; i < sizeof(received_message); i++) {
+      Serial.print(received_message[i], HEX);
+      Serial.print(" ");
+    }
+    Serial.println();
 
-  // Serializar a mensagem em um buffer de bytes
-  uint8_t buf[21];
-  buf[0] = 0xFF;
-  buf[1] = 0xFF;
-  buf[2] = (message.message_type & 0x01) | ((message.id >> 7) & 0xFE);
-  buf[3] = message.id & 0x7F;
-  buf[4] = (message.latitude >> 16) & 0xFF;
-  buf[5] = (message.latitude >> 8) & 0xFF;
-  buf[6] = message.latitude & 0xFF;
-  buf[7] = (message.longitude >> 16) & 0xFF;
-  buf[8] = (message.longitude >> 8) & 0xFF;
-  buf[9] = message.longitude & 0xFF;
-  buf[10] = message.group_flag & 0x01;
-  buf[11] = (message.record_time >> 8) & 0xFF;
-  buf[12] = message.record_time & 0xFF;
-  buf[13] = (message.max_records >> 8) & 0x07;
-  buf[14] = message.max_records & 0xFF;
-  buf[15] = ((message.hop_count & 0x0F) << 4) | (message.channel & 0x03);
-  buf[16] = (message.location_time >> 8) & 0xFF;
-  buf[17] = message.location_time & 0xFF;
-  buf[18] = ((message.help_flag & 0x03) << 6) | (message.battery & 0x0F);
+    rf95.send(received_message, sizeof(received_message));
+    rf95.waitPacketSent();
+  }
 
-  // Enviar a mensagem
-  rf95.send(buf, sizeof(buf));
-  rf95.waitPacketSent();
-
-  Serial.println("Mensagem enviada");
-
-  delay(10000); // Envia a cada 10 segundos
+  delay(1000); // Aguardar um pouco antes de verificar novamente
 }

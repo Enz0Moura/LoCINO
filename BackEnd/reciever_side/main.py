@@ -1,5 +1,4 @@
-from message.strategies import find_arduino
-from message.model import Message
+from BackEnd.message.model import Message
 import serial
 
 def receive_and_store_message():

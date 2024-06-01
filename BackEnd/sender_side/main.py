@@ -1,6 +1,6 @@
 import serial
-from message.strategies import find_arduino
-from message.model import Message
+from BackEnd.message.strategies import find_arduino
+from BackEnd.message.model import Message
 
 
 

@@ -41,6 +41,9 @@ void setup()
   rf95.setTxPower(14, false);
   rf95.setModemConfig(RH_RF95::Bw125Cr45Sf128);
   Serial.println("Setup completo");
+
+  // Envia uma mensagem indicando que está pronto para receber dados
+  Serial.println("READY");
 }
 
 void loop()
@@ -52,20 +55,23 @@ void loop()
     if (rf95.recv(buf, &len)) {
       Serial.print("Mensagem recebida: ");
       for (uint8_t i = 0; i < len; i++) {
-        Serial.print((char)buf[i]);
+        Serial.print(buf[i], HEX);
+        Serial.print(" ");
       }
       Serial.println();
+      
+      // Verifique se a mensagem contém o cabeçalho esperado
+      if (buf[0] == 0xFF && buf[1] == 0xFF) {
+        Serial.println("Cabeçalho verificado");
+
+        // Transmite os dados recebidos de volta para o Python para desserialização
+        Serial.write(buf, len);
+      } else {
+        Serial.println("Cabeçalho incorreto");
+      }
     } else {
       Serial.println("Falha na recepção");
     }
   }
-  smartDelay(250);
-}
-
-static void smartDelay(unsigned long ms)
-{
-  unsigned long start = millis();
-  while (millis() - start < ms) {
-    // Aqui pode-se adicionar qualquer processamento contínuo necessário
-  }
+  delay(250);
 }

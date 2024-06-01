@@ -2,13 +2,13 @@ from BackEnd.message.model import Message
 import serial
 
 def receive_and_store_message():
-    arduino_port = 'COM4'
+    arduino_port = '/dev/ttyACM0'
     if arduino_port:
         print(f"Arduino encontrado na porta: {arduino_port}")
 
         with serial.Serial(arduino_port, 9600, timeout=5) as ser:
             while True:
-                response = ser.read(34)  # 2 bytes de cabeçalho + 32 bytes de dados
+                response = ser.read(17)  # 2 bytes de cabeçalho + 32 bytes de dados
                 if response:
                     print("Mensagem recebida do Arduino:", response)
 

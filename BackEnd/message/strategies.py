@@ -1,3 +1,5 @@
+import serial
+
 def cord_to_24bit(value, range_min, range_max, bits=24):
     """Converte um valor de coordenada do seu intervalo original para um valor de 24 bits.
 
@@ -19,3 +21,10 @@ def cord_from_24bit(value, range_min, range_max, bits=24):
 
     normalized = value / (2 ** bits - 1)
     return normalized * (range_max - range_min) + range_min
+
+def find_arduino():
+    ports = list(serial.tools.list_ports.comports())
+    for port in ports:
+        if "Arduino" in port.description or "ttyUSB" in port.device or "ttyACM" in port.device:
+            return port.device
+    return None

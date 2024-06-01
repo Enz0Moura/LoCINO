@@ -7,23 +7,21 @@
 #define RF95_FREQ 915.0
 
 RH_RF95 rf95(RFM95_CS, RFM95_INT);
-#define LED 13
 
 void setup() 
 {
-  pinMode(LED, OUTPUT);     
   pinMode(RFM95_RST, OUTPUT);
   digitalWrite(RFM95_RST, HIGH);
-
   Serial.begin(9600);
+
   while (!Serial);
   delay(100);
-
+  
   digitalWrite(RFM95_RST, LOW);
   delay(10);
   digitalWrite(RFM95_RST, HIGH);
   delay(10);
-
+  
   if (!rf95.init()) {
     Serial.println("LoRa radio init failed");
     while (1);
@@ -44,26 +42,17 @@ void setup()
 
 void loop()
 {
-  if (rf95.available())
-  {
+  if (rf95.available()) {
     uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
     uint8_t len = sizeof(buf);
 
-    if (rf95.recv(buf, &len))
-    {
-      digitalWrite(LED, HIGH);
-
-      // Processar a mensagem recebida
+    if (rf95.recv(buf, &len)) {
       Serial.print("Received message: ");
       for (uint8_t i = 0; i < len; i++) {
         Serial.print((char)buf[i]);
       }
       Serial.println();
-
-      digitalWrite(LED, LOW);
-    }
-    else
-    {
+    } else {
       Serial.println("Receive failed");
     }
   }
@@ -73,9 +62,7 @@ void loop()
 static void smartDelay(unsigned long ms)
 {
   unsigned long start = millis();
-  do 
-  {
-    // Aqui pode-se adicionar qualquer processamento contínuo necessário
-  } 
-  while (millis() - start < ms);
+  while (millis() - start < ms) {
+    // adicionar qualquer processamento contínuo necessário
+  }
 }

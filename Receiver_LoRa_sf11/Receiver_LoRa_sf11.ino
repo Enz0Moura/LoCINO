@@ -16,7 +16,7 @@ void setup() {
   while (!Serial);
   delay(100);
 
-  Serial.println("Iniciando LoRa...");
+  Serial.println("Initializing LoRa...");
 
   digitalWrite(RFM95_RST, LOW);
   delay(10);
@@ -39,7 +39,7 @@ void setup() {
 
   rf95.setTxPower(14, false);
   rf95.setModemConfig(RH_RF95::Bw125Cr45Sf128);
-  Serial.println("Setup completo");
+  Serial.println("Setup completed");
 }
 
 void loop() {
@@ -48,7 +48,7 @@ void loop() {
     uint8_t len = sizeof(buf);
 
     if (rf95.recv(buf, &len)) {
-      Serial.println("Mensagem recebida via LoRa: ");
+      Serial.println("Received message by LoRa: ");
       for (uint8_t i = 0; i < len; i++) {
         Serial.print(buf[i], HEX);
         Serial.print(" ");
@@ -57,15 +57,15 @@ void loop() {
       
       // Verifique se a mensagem contém o cabeçalho esperado
       if (buf[0] == 0xFF && buf[1] == 0xFF) {
-        Serial.println("Cabeçalho verificado");
+        Serial.println("Header verified");
 
         // Transmite os dados recebidos de volta para o Python para desserialização
         Serial.write(buf, len);
       } else {
-        Serial.println("Cabeçalho incorreto");
+        Serial.println("Incorrect Header");
       }
     } else {
-      Serial.println("Falha na recepção");
+      Serial.println("Reception failed");
     }
   }
   delay(250);

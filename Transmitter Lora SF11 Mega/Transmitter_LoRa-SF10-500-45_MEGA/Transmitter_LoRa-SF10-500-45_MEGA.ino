@@ -31,7 +31,7 @@ void setup() {
   while (!Serial);
   delay(100);
 
-  Serial.println("Iniciando LoRa...");
+  Serial.println("Initializing LoRa...");
 
   digitalWrite(RFM95_RST, LOW);
   delay(10);
@@ -64,7 +64,7 @@ void loop() {
     Serial.println("ACK");
 
     // Verificar o cabeçalho e a mensagem recebida
-    Serial.print("Mensagem recebida: ");
+    Serial.print("Received message: ");
     for (uint8_t i = 0; i < 17; i++) {
       Serial.print(received_message[i], HEX);
       Serial.print(" ");
@@ -72,20 +72,20 @@ void loop() {
     Serial.println();
 
     if (received_message[0] == 0xFF && received_message[1] == 0xFF) {
-      Serial.println("Cabeçalho verificado");
+      Serial.println("Header verified");
 
       // Enviar a mensagem via LoRa, incluindo o cabeçalho
       rf95.send(received_message, sizeof(received_message));
       rf95.waitPacketSent();
 
-      Serial.print("Mensagem enviada via LoRa: ");
+      Serial.print("Sent message via LoRa: ");
       for (uint8_t i = 0; i < sizeof(received_message); i++) {
         Serial.print(received_message[i], HEX);
         Serial.print(" ");
       }
       Serial.println();
     } else {
-      Serial.println("Cabeçalho incorreto");
+      Serial.println("Incorrect Header");
     }
   }
 

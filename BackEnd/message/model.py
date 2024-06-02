@@ -1,7 +1,7 @@
 from construct import BitStruct, Flag, BitsInteger
 from BackEnd.message.strategies import cord_from_24bit, cord_to_24bit
 
-message_schema = BitStruct(
+message_bits_schema = BitStruct(
     "message_type" / Flag,
     "id" / BitsInteger(15),
     "latitude" / BitsInteger(24),
@@ -25,11 +25,11 @@ class Message:
         self.data = kwargs
 
     def build(self):
-        return message_schema.build(self.data)
+        return message_bits_schema.build(self.data)
 
     @staticmethod
     def parse(data):
-        parsed_data = message_schema.parse(data)
+        parsed_data = message_bits_schema.parse(data)
         if 'latitude' in parsed_data:
             parsed_data['latitude'] = cord_from_24bit(parsed_data['latitude'], -90, 90)
         if 'longitude' in parsed_data:

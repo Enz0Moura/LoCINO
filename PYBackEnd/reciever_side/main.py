@@ -1,4 +1,4 @@
-from BackEnd.message.model import Message
+from PYBackEnd.message.model import Message
 import serial
 
 

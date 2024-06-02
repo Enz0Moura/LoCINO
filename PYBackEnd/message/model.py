@@ -1,5 +1,5 @@
 from construct import BitStruct, Flag, BitsInteger
-from BackEnd.message.strategies import cord_from_24bit, cord_to_24bit
+from PYBackEnd.message.strategies import cord_from_24bit, cord_to_24bit
 
 message_bits_schema = BitStruct(
     "message_type" / Flag,

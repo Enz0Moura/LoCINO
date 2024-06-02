@@ -1,6 +1,6 @@
 import serial
-from BackEnd.message.model import Message
-from BackEnd.message.schemas import Message as MessageSchema
+from PYBackEnd.message.model import Message
+from PYBackEnd.message.schemas import Message as MessageSchema
 def send_message(arduino_port, message):
     if arduino_port:
         print(f"Arduino encontrado na porta: {arduino_port}")

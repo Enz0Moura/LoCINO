@@ -7,7 +7,7 @@ void setupLoRa() {
   digitalWrite(RFM95_RST, HIGH);
   Serial.begin(9600);
 
-  while (!Serial);  // Esperar até que o Serial esteja disponível
+  while (!Serial);
   delay(100);
 
   Serial.println("Initializing LoRa...");
@@ -32,18 +32,8 @@ void setupLoRa() {
   }
 
   rf95.setTxPower(14, false);
-  rf95.setModemConfig(RH_RF95::Bw125Cr45Sf128); // Use the modem configuration as per your original script
+  rf95.setModemConfig(RH_RF95::Bw125Cr45Sf128);
   Serial.println("LoRa setup completed");
-}
-
-void setSpreadingFactor(uint8_t sf) {
-  if (sf < 6 || sf > 12) {
-    Serial.println("Invalid spreading factor. Use a value between 6 and 12.");
-    return;
-  }
-  // This function is now just for changing spreading factor dynamically, but we will not use it here
-  Serial.print("Spreading factor set to: ");
-  Serial.println(sf);
 }
 
 void sendMessage(uint8_t* data, uint8_t length) {
@@ -87,8 +77,7 @@ void receiveMessage() {
         Serial.print(" ");
       }
       Serial.println();
-      
-      // Verifique se a mensagem contém o cabeçalho esperado
+
       if (buf[0] == 0xFF && buf[1] == 0xFF) {
         Serial.println("Header verified");
 

@@ -27,7 +27,6 @@ struct Message {
 };
 
 void setupLoRa();
-void setSpreadingFactor(uint8_t sf);
 void sendMessage(uint8_t* data, uint8_t length);
 void receiveMessage();
 

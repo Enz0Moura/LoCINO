@@ -32,7 +32,7 @@ void setupLoRa() {
   }
 
   rf95.setTxPower(14, false);
-  rf95.setModemConfig(RH_RF95::Bw125Cr45Sf128);
+  rf95.setModemConfig(RH_RF95::Bw125Cr45Sf128); //using sf11 config
   Serial.println("LoRa setup completed");
 }
 

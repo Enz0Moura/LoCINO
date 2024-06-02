@@ -27,9 +27,7 @@ def receive_and_store_message():
 
                             print("Mensagem recebida do Arduino:", ' '.join(format(x, '02X') for x in response))
 
-                            # Verificar o cabeçalho
                             if response[:2] == b'\xFF\xFF':
-                                # Desserializar a mensagem
                                 received_data = Message.parse(response[2:])  # Ignorar o cabeçalho
                                 print("Mensagem desserializada:", received_data)
 

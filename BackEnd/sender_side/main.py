@@ -27,10 +27,9 @@ if arduino_port:
         print(f"Erro ao criar ou serializar a mensagem: {e}")
         exit(1)
 
-    # Verifique o tamanho da mensagem
     print(f"Tamanho da mensagem: {len(serialized_message)} bytes")
 
-    # Adicione um cabeçalho para facilitar a identificação
+    # Header para facilitar a identificação
     header = b'\xFF\xFF'
     message_with_header = header + serialized_message
 
@@ -47,7 +46,7 @@ if arduino_port:
             ser.write(message_with_header)
             print("Mensagem enviada: ", message_with_header)
 
-            # Espera pela confirmação do Arduino
+            # Esperando confirmação do Arduino
             try:
                 while True:
                     ack = ser.readline().decode('utf-8', errors='ignore').strip()

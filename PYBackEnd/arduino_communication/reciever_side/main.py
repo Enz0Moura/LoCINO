@@ -1,5 +1,5 @@
 from PYBackEnd.message.model import Message
-from PYBackEnd.arduino_communication.utils import find_arduino_port
+from PYBackEnd.arduino_communication.utils import find_arduino_port, store_message
 import serial
 
 
@@ -32,8 +32,7 @@ def receive_and_store_message(arduino_port):
                                 print("Mensagem desserializada:", received_data)
 
                                 # Armazena a mensagem
-                                with open('received_messages.txt', 'a') as file:
-                                    file.write(str(received_data) + '\n')
+                                store_message(received_data)
                             else:
                                 print("Cabeçalho incorreto, mensagem ignorada:",
                                       ' '.join(format(x, '02X') for x in response))

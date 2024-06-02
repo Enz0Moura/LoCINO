@@ -1,3 +1,4 @@
 /PYBackEnd/arduino_communication/reciever_side/received_messages.txt
 /venv
 /.env
+/PYBackEnd/arduino_communication/db/

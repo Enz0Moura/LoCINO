@@ -89,5 +89,5 @@ void loop() {
     }
   }
 
-  delay(1000); // Aguardar um pouco antes de verificar novamente
+  delay(1000);
 }

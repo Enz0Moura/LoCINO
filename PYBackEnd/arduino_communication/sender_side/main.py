@@ -1,5 +1,6 @@
 import serial
 from PYBackEnd.message.model import Message
+from PYBackEnd.arduino_communication.utils import find_arduino_port
 from PYBackEnd.message.schemas import Message as MessageSchema
 def send_message(arduino_port, message):
     if arduino_port:
@@ -66,8 +67,7 @@ def send_message(arduino_port, message):
 #testando a função
 
 if __name__ == "__main__":
-    arduino_port = 'COM4'
-
+    arduino_port = find_arduino_port()
     message = MessageSchema(
                     message_type=True,
                     id=1,

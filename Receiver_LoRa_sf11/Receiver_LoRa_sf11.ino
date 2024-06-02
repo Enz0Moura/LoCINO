@@ -8,8 +8,7 @@
 
 RH_RF95 rf95(RFM95_CS, RFM95_INT);
 
-void setup() 
-{
+void setup() {
   pinMode(RFM95_RST, OUTPUT);
   digitalWrite(RFM95_RST, HIGH);
   Serial.begin(9600);
@@ -43,14 +42,13 @@ void setup()
   Serial.println("Setup completo");
 }
 
-void loop()
-{
+void loop() {
   if (rf95.available()) {
     uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
     uint8_t len = sizeof(buf);
 
     if (rf95.recv(buf, &len)) {
-      Serial.print("Mensagem recebida: ");
+      Serial.println("Mensagem recebida via LoRa: ");
       for (uint8_t i = 0; i < len; i++) {
         Serial.print(buf[i], HEX);
         Serial.print(" ");

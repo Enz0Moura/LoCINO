@@ -63,20 +63,30 @@ void loop() {
     Serial.readBytes(received_message, 17);
     Serial.println("ACK");
 
-    // Ignorar o cabeçalho
-    uint8_t message_payload[17];
-    memcpy(message_payload, received_message + 2, 15);
-
-    // Enviar a mensagem via LoRa
-    Serial.print("Enviando mensagem: ");
-    for (uint8_t i = 0; i < sizeof(message_payload); i++) {
-      Serial.print(message_payload[i], HEX);
+    // Verificar o cabeçalho e a mensagem recebida
+    Serial.print("Mensagem recebida: ");
+    for (uint8_t i = 0; i < 17; i++) {
+      Serial.print(received_message[i], HEX);
       Serial.print(" ");
     }
     Serial.println();
 
-    rf95.send(message_payload, sizeof(message_payload));
-    rf95.waitPacketSent();
+    if (received_message[0] == 0xFF && received_message[1] == 0xFF) {
+      Serial.println("Cabeçalho verificado");
+
+      // Enviar a mensagem via LoRa, incluindo o cabeçalho
+      rf95.send(received_message, sizeof(received_message));
+      rf95.waitPacketSent();
+
+      Serial.print("Mensagem enviada via LoRa: ");
+      for (uint8_t i = 0; i < sizeof(received_message); i++) {
+        Serial.print(received_message[i], HEX);
+        Serial.print(" ");
+      }
+      Serial.println();
+    } else {
+      Serial.println("Cabeçalho incorreto");
+    }
   }
 
   delay(1000); // Aguardar um pouco antes de verificar novamente

@@ -37,7 +37,6 @@ if arduino_port:
     try:
         # Envia a mensagem serializada via porta serial
         with serial.Serial(arduino_port, 9600, timeout=2) as ser:
-            # Espera pela mensagem "READY" do Arduino
             while True:
                 ready_message = ser.readline().decode('utf-8', errors='ignore').strip()
                 if ready_message == "READY":

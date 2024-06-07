@@ -2,6 +2,11 @@ import serial
 from PYBackEnd.message.model import Message
 from PYBackEnd.arduino_communication.utils import find_arduino_port
 from PYBackEnd.message.schemas import Message as MessageSchema
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 def send_message(arduino_port, message):
     if arduino_port:
         print(f"Arduino encontrado na porta: {arduino_port}")
@@ -64,22 +69,24 @@ def send_message(arduino_port, message):
     else:
         print("Arduino não encontrado")
 
-#testando a função
-
-if __name__ == "__main__":
+# Function test
+def main():
     arduino_port = find_arduino_port()
     message = MessageSchema(
-                    message_type=True,
-                    id=1,
-                    latitude=50.1234,
-                    longitude=8.1234,
-                    group_flag=False,
-                    record_time=12345,
-                    max_records=2047,
-                    hop_count=15,
-                    channel=3,
-                    location_time=6789,
-                    help_flag=2,
-                    battery=15
-                )
+        message_type=True,
+        id=1,
+        latitude=50.1234,
+        longitude=8.1234,
+        group_flag=False,
+        record_time=12345,
+        max_records=2047,
+        hop_count=15,
+        channel=3,
+        location_time=6789,
+        help_flag=2,
+        battery=15
+    )
     send_message(arduino_port, message)
+
+if __name__ == "__main__":
+    main()

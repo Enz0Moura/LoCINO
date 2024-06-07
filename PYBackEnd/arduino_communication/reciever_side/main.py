@@ -1,7 +1,10 @@
 from PYBackEnd.message.model import Message
 from PYBackEnd.arduino_communication.utils import find_arduino_port, store_message
 import serial
+import sys
+import os
 
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 def receive_and_store_message(arduino_port):
     if arduino_port:
@@ -39,6 +42,9 @@ def receive_and_store_message(arduino_port):
     else:
         print("Arduino não encontrado")
 
-if __name__ == "__main__":
+def main():
     arduino_port = find_arduino_port()
     receive_and_store_message(arduino_port)
+
+if __name__ == "__main__":
+    main()

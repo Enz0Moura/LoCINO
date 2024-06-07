@@ -18,7 +18,7 @@ setup(
     entry_points={
         "console_scripts": [
             "run_sender_side=PYBackEnd.arduino_communication.sender_side.main:main",
-            "run_reciever_side=PYBackEnd.arduino_communication.reciever_side.main:main",
+            "run_receiver_side=PYBackEnd.arduino_communication.receiver_side.main:main",
         ],
     },
 )

@@ -8,7 +8,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 
 def receive_and_store_message(arduino_port):
     if arduino_port:
-        print(f"Arduino encontrado na porta: {arduino_port}")
+        print(f"Arduino found on port: {arduino_port}")
 
         with serial.Serial(arduino_port, 9600, timeout=5) as ser:
             buffer = b''
@@ -28,19 +28,19 @@ def receive_and_store_message(arduino_port):
                             response = buffer[:17]
                             buffer = buffer[17:]
 
-                            print("Mensagem recebida do Arduino:", ' '.join(format(x, '02X') for x in response))
+                            print("Received message from Arduino:", ' '.join(format(x, '02X') for x in response))
 
                             if response[:2] == b'\xFF\xFF':
                                 received_data = Message.parse(response[2:])  # Ignorar o cabeçalho
-                                print("Mensagem desserializada:", received_data)
+                                print("Deserialized message:", received_data)
 
                                 # Armazena a mensagem
                                 store_message(received_data)
                             else:
-                                print("Cabeçalho incorreto, mensagem ignorada:",
+                                print("Incorrect Header, ignoring message:",
                                       ' '.join(format(x, '02X') for x in response))
     else:
-        print("Arduino não encontrado")
+        print("Arduino not found")
 
 def main():
     arduino_port = find_arduino_port()

@@ -9,7 +9,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 
 def send_message(arduino_port, message):
     if arduino_port:
-        print(f"Arduino encontrado na porta: {arduino_port}")
+        print(f"Arduino found on port: {arduino_port}")
 
         # Inicialização da mensagem
         try:
@@ -29,10 +29,10 @@ def send_message(arduino_port, message):
             )
             serialized_message = msg.build()
         except Exception as e:
-            print(f"Erro ao criar ou serializar a mensagem: {e}")
+            print(f"Error on creating or serializing message: {e}")
             exit(1)
 
-        print(f"Tamanho da mensagem: {len(serialized_message)} bytes")
+        print(f"Message len: {len(serialized_message)} bytes")
 
         # Header para facilitar a identificação
         header = b'\xFF\xFF'
@@ -46,28 +46,28 @@ def send_message(arduino_port, message):
                     if ready_message == "READY":
                         break
                     else:
-                        print(f"Aguardando READY, recebido: {ready_message}")
+                        print(f"Waiting READY, received: {ready_message}")
 
                 ser.write(message_with_header)
-                print("Mensagem enviada: ", message_with_header)
+                print("Message sent: ", message_with_header)
 
                 # Esperando confirmação do Arduino
                 try:
                     while True:
                         ack = ser.readline().decode('utf-8', errors='ignore').strip()
-                        print(f"Recebido: {ack}")
+                        print(f"Received: {ack}")
                         if ack == "ACK":
-                            print("Confirmação recebida: Mensagem enviada com sucesso")
+                            print("Confirmation received: message sent")
                             break
                         else:
-                            print("Nenhuma confirmação recebida ou confirmação incorreta")
+                            print("No confirmation received or incorrect confirmation")
 
                 except serial.SerialTimeoutException:
-                    print("Timeout: Nenhuma confirmação recebida")
+                    print("Timeout: No confirmation received")
         except serial.SerialException as e:
-            print(f"Erro na comunicação serial: {e}")
+            print(f"Serial communication error: {e}")
     else:
-        print("Arduino não encontrado")
+        print("Arduino not found")
 
 # Function test
 def main():

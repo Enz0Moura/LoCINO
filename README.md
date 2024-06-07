@@ -45,7 +45,7 @@ The LoCINO project allows the creation and sending of structured messages via th
     ```sh
    python -m venv venv
    source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
-   pip install -r requirements.txt
+   pip install .
 
 ### C++ Module Installation
 1. Add the LoRaLibrary:
@@ -70,5 +70,12 @@ The LoCINO project allows the creation and sending of structured messages via th
 
 ### Python Module
 - The Python module is used to structure messages that will be sent via LoRa.
-
+  - Type on the terminal to run sender side:
+    ```sh
+    run_sender_side
+    
+  - Type on the terminal to run receiver side:
+    ```sh
+    run_reciever_side
+  
 

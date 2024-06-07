@@ -51,11 +51,7 @@ The LoCINO project allows the creation and sending of structured messages via th
 1. Add the LoRaLibrary:
 
     - In the cloned repository, navigate to the LoRaLibrary directory.
-    - Copy the LoRaLibrary folder to the Arduino IDE libraries directory. Typically, this directory is located at:
-    ```sh
-    python -m venv venv
-    source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
-    pip install -r requirements.txt
+    - Copy the LoRaLibrary folder to the Arduino IDE libraries directory.
 
 2. Install the RH_RF95 Library:
 

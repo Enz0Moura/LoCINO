@@ -6,6 +6,7 @@
       <excludeFolder url="file://$MODULE_DIR$/venv" />
       <excludeFolder url="file://$MODULE_DIR$/PYBackEnd/arduino_communication/db" />
       <excludeFolder url="file://$MODULE_DIR$/PYBackEnd/PYBackEnd.egg-info" />
+      <excludeFolder url="file://$MODULE_DIR$/PYBackEnd/build" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.11 (LoCINO)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

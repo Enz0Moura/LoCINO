@@ -22,8 +22,12 @@ class Message:
     def __init__(self, **kwargs):
         if 'latitude' in kwargs:
             kwargs['latitude'] = Message.__cord_to_24bit(kwargs['latitude'], -90, 90)
+        else:
+            raise ValueError("Misssing latitude field")
         if 'longitude' in kwargs:
             kwargs['longitude'] = Message.__cord_to_24bit(kwargs['longitude'], -180, 180)
+        else:
+            raise ValueError("Misssing latitude field")
         self.data = kwargs
 
     @classmethod

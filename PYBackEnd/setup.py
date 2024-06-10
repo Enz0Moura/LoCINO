@@ -1,6 +1,8 @@
 import os
 
 from setuptools import setup, find_packages
+
+
 def read_requirements():
     requirements_path = os.path.join(os.path.dirname(__file__), 'requirements.txt')
     if os.path.isfile(requirements_path):
@@ -9,6 +11,7 @@ def read_requirements():
             if requirements and requirements[0].startswith('\ufeff'):
                 requirements[0] = requirements[0][1:]
             return requirements
+
 
 setup(
     name="PYBackEnd",

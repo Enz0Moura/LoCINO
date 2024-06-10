@@ -1,10 +1,13 @@
-from PYBackEnd.message.model import Message
-from PYBackEnd.arduino_communication.utils import find_arduino_port, store_message
-import serial
-import sys
 import os
+import sys
+
+import serial
+
+from PYBackEnd.arduino_communication.utils import find_arduino_port, store_message
+from PYBackEnd.message.model import Message as MessageModel
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 
 def receive_and_store_message(arduino_port):
     if arduino_port:
@@ -31,7 +34,7 @@ def receive_and_store_message(arduino_port):
                             print("Received message from Arduino:", ' '.join(format(x, '02X') for x in response))
 
                             if response[:2] == b'\xFF\xFF':
-                                received_data = Message.parse(response[2:])  # Ignorar o cabeçalho
+                                received_data = MessageModel.parse(response[2:])  # Ignorar o cabeçalho
                                 print("Deserialized message:", received_data)
 
                                 # Armazena a mensagem
@@ -42,9 +45,11 @@ def receive_and_store_message(arduino_port):
     else:
         print("Arduino not found")
 
+
 def main():
     arduino_port = find_arduino_port()
     receive_and_store_message(arduino_port)
+
 
 if __name__ == "__main__":
     main()

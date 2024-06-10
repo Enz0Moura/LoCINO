@@ -1,11 +1,14 @@
-import serial
-from PYBackEnd.message.model import Message
-from PYBackEnd.arduino_communication.utils import find_arduino_port
-from PYBackEnd.message.schemas import Message as MessageSchema
-import sys
 import os
+import sys
+
+import serial
+
+from PYBackEnd.arduino_communication.utils import find_arduino_port
+from PYBackEnd.message.model import Message as MessageModel
+from PYBackEnd.message.schemas import Message as MessageSchema
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 
 def send_message(arduino_port, message):
     if arduino_port:
@@ -13,7 +16,7 @@ def send_message(arduino_port, message):
 
         # Inicialização da mensagem
         try:
-            msg = Message(
+            msg = MessageModel(
                 message_type=message.message_type,
                 id=message.id,
                 latitude=message.latitude,
@@ -69,6 +72,7 @@ def send_message(arduino_port, message):
     else:
         print("Arduino not found")
 
+
 # Function test
 def main():
     arduino_port = find_arduino_port()
@@ -86,7 +90,9 @@ def main():
         help_flag=2,
         battery=15
     )
+
     send_message(arduino_port, message)
+
 
 if __name__ == "__main__":
     main()

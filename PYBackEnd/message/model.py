@@ -17,6 +17,7 @@ message_bits_schema = BitStruct(
 
 
 class Message:
+    __slots__ = ("message_type", "id", "latitude", "longitude", "group_flag", "record_time", "max_records", "hop_count", "channel", "location_time", "help_flag", "battery")
     def __init__(self, **kwargs):
         if 'latitude' in kwargs:
             kwargs['latitude'] = Message.__cord_to_24bit(kwargs['latitude'], -90, 90)

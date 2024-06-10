@@ -27,8 +27,8 @@ class Message:
     def build(self):
         return message_bits_schema.buil45d(self.data)
 
-    @staticmethod
-    def __cord_from_24bit(value, range_min, range_max, bits=24):
+    @classmethod
+    def __cord_from_24bit(cls, value, range_min, range_max, bits=24):
         """Converte um valor de coordenada do 24 bits de volta para seu valor original no intervalo.
 
           Range para latitude: -90 até 90
@@ -39,8 +39,8 @@ class Message:
         normalized = value / (2 ** bits - 1)
         return normalized * (range_max - range_min) + range_min
 
-    @staticmethod
-    def __cord_to_24bit(value, range_min, range_max, bits=24):
+    @classmethod
+    def __cord_to_24bit(cls, value, range_min, range_max, bits=24):
         """Converte um valor de coordenada do seu intervalo original para um valor de 24 bits.
 
             Range para latitude: -90 até 90
@@ -49,6 +49,7 @@ class Message:
             """
         normalized = (value - range_min) / (range_max - range_min)
         return int(normalized * (2 ** bits - 1))
+
     @staticmethod
     def parse(data):
         parsed_data = message_bits_schema.parse(data)

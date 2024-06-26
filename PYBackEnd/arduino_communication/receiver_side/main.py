@@ -35,11 +35,11 @@ def receive_and_store_message(arduino_port):
 
                             if response[:2] == b'\xFF\xFF':
                                 message = response[2:25]
-                                recieved_checksum = response[25:27]
-                                parsed_data = MessageModel.parse(message)  # Ignorar o cabeçalho
-                                print(f"Deserialized message:{parsed_data}\nCheck Sum: {recieved_checksum}")
+                                received_checksum = response[25:27]
+                                parsed_data = MessageModel.parse(message)  # Ignore Header
+                                print(f"Deserialized message:{parsed_data}\nCheck Sum: {received_checksum}")
                                 sucess = True
-                                if not MessageModel.vef_checksum(message):
+                                if not MessageModel.vef_checksum(message, received_checksum):
                                     print("Error handling message. Checksum differs.")
                                     sucess = False
                                 store_message(parsed_data, sucess)

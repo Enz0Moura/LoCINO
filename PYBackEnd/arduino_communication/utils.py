@@ -21,6 +21,6 @@ def store_message(received_data, success=True):
     file_path = os.path.join(db_directory, 'received_messages.txt')
 
     with open(file_path, 'a') as file:
-        file.write(str(received_data) + success + '\n')
+        file.write(str(received_data) + str(success) + '\n')
         file.flush()
         os.fsync(file.fileno())

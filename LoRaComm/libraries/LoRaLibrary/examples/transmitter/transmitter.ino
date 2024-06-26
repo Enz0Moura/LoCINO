@@ -6,7 +6,7 @@ void setup() {
 }
 
 void loop() {
-  if (Serial.available() >= 17) { // Esperar até que todos os bytes da mensagem sejam recebidos, incluindo cabeçalho
+  if (Serial.available() >= 19) { // Esperar até que todos os bytes da mensagem sejam recebidos, incluindo cabeçalho
     uint8_t received_message[19];
     Serial.readBytes(received_message, 19);
     Serial.println("ACK");

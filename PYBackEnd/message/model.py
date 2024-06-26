@@ -59,7 +59,14 @@ class Message:
     @classmethod
     def _build(cls, data):
         return cls._message_bits_schema.build(data)
+    @staticmethod
+    def generate_checksum(serialized_message):
+        checksum = sum(serialized_message) & 0xFFFF
+        return checksum.to_bytes(2, byteorder='big')
 
+    @staticmethod
+    def vef_checksum(serialized_message, received_checksum) -> bool:
+        return received_checksum == Message.generate_checksum(serialized_message)
     @classmethod
     def parse(cls, data):
         parsed_data = cls._message_bits_schema.parse(data)

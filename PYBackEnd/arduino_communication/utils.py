@@ -11,7 +11,7 @@ def find_arduino_port():
     return None
 
 
-def store_message(received_data):
+def store_message(received_data, success=True):
     project_root = os.path.dirname(os.path.abspath(__file__))
     db_directory = os.path.join(project_root, 'db')
 
@@ -21,6 +21,6 @@ def store_message(received_data):
     file_path = os.path.join(db_directory, 'received_messages.txt')
 
     with open(file_path, 'a') as file:
-        file.write(str(received_data) + '\n')
+        file.write(str(received_data) + success + '\n')
         file.flush()
         os.fsync(file.fileno())

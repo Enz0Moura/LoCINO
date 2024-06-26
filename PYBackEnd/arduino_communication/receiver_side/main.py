@@ -34,11 +34,15 @@ def receive_and_store_message(arduino_port):
                             print("Received message from Arduino:", ' '.join(format(x, '02X') for x in response))
 
                             if response[:2] == b'\xFF\xFF':
-                                received_data = MessageModel.parse(response[2:])  # Ignorar o cabeçalho
-                                print("Deserialized message:", received_data)
-
-                                # Armazena a mensagem
-                                store_message(received_data)
+                                message = response[2:25]
+                                recieved_checksum = response[25:27]
+                                parsed_data = MessageModel.parse(message)  # Ignorar o cabeçalho
+                                print(f"Deserialized message:{parsed_data}\nCheck Sum: {recieved_checksum}")
+                                sucess = True
+                                if not MessageModel.vef_checksum(message):
+                                    print("Error handling message. Checksum differs.")
+                                    sucess = False
+                                store_message(parsed_data, sucess)
                             else:
                                 print("Incorrect Header, ignoring message:",
                                       ' '.join(format(x, '02X') for x in response))

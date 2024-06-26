@@ -39,7 +39,8 @@ def send_message(arduino_port, message):
 
         # Header para facilitar a identificação
         header = b'\xFF\xFF'
-        message_with_header = header + serialized_message
+        check_sum = MessageModel.generate_checksum(serialized_message)
+        message_with_header = header + serialized_message + check_sum
 
         try:
             # Envia a mensagem serializada via porta serial

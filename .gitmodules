@@ -1,0 +1,3 @@
+[submodule "LoRaLibrary"]
+	path = LoRaLibrary
+	url = https://github.com/Enz0Moura/LoRaLibrary

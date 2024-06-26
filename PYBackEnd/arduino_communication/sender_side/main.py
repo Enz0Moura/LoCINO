@@ -3,9 +3,9 @@ import sys
 
 import serial
 
-from PYBackEnd.arduino_communication.utils import find_arduino_port
-from PYBackEnd.message.model import Message as MessageModel
-from PYBackEnd.message.schemas import Message as MessageSchema
+from arduino_communication.utils import find_arduino_port
+from message.model import Message as MessageModel
+from message.schemas import Message as MessageSchema
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 

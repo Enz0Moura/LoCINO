@@ -1,5 +1,4 @@
 import os
-
 from setuptools import setup, find_packages
 
 
@@ -20,8 +19,8 @@ setup(
     install_requires=read_requirements(),
     entry_points={
         "console_scripts": [
-            "run_sender_side=PYBackEnd.arduino_communication.sender_side.main:main",
-            "run_receiver_side=PYBackEnd.arduino_communication.receiver_side.main:main",
+            "run_sender_side=arduino_communication.sender_side.main:main",
+            "run_receiver_side=arduino_communication.receiver_side.main:main",
         ],
     },
 )

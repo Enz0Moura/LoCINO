@@ -1,7 +1,7 @@
 import os
 import serial
 import serial.tools.list_ports
-
+from PYBackEnd.models.insert_main import insert_message_result
 
 def find_arduino_port():
     ports = list(serial.tools.list_ports.comports())
@@ -18,9 +18,4 @@ def store_message(received_data, success=True):
     if not os.path.exists(db_directory):
         os.makedirs(db_directory)
 
-    file_path = os.path.join(db_directory, 'received_messages.txt')
-
-    with open(file_path, 'a') as file:
-        file.write(str(received_data) + str(success) + '\n')
-        file.flush()
-        os.fsync(file.fileno())
+    insert_message_result(success, received_data)

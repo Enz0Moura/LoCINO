@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -9,8 +10,10 @@ from sqlalchemy.orm import sessionmaker, Session
 from models.model_base import ModelBase
 __engine: Optional[Engine] = None
 
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 def create_engine() -> Engine:
-    project_root = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     db_directory = os.path.join(project_root, 'db')
 
     if not os.path.exists(db_directory):

@@ -44,6 +44,7 @@ def receive_and_store_message(arduino_port):
                             else:
                                 print("Incorrect Header, ignoring message:",
                                       ' '.join(format(x, '02X') for x in response))
+                                store_message(None, False)
     else:
         print("Arduino not found")
 

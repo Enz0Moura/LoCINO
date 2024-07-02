@@ -1,7 +1,7 @@
 import os
 import serial
 import serial.tools.list_ports
-from PYBackEnd.models.insert_main import insert_message_result
+from models.insert_main import insert_message_result
 
 def find_arduino_port():
     ports = list(serial.tools.list_ports.comports())

@@ -6,7 +6,7 @@ import sqlalchemy as sa
 from sqlalchemy.future.engine import Engine
 from sqlalchemy.orm import sessionmaker, Session
 
-from PYBackEnd.models.model_base import ModelBase
+from models.model_base import ModelBase
 __engine: Optional[Engine] = None
 
 def create_engine() -> Engine:
@@ -50,6 +50,6 @@ def create_session() -> Session:
 def create_tables() -> None:
     if not __engine:
         create_engine()
-    import PYBackEnd.models.__all_models
+    import models.__all_models
     ModelBase.metadata.drop_all(__engine)
     ModelBase.metadata.create_all(__engine)

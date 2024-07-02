@@ -1,1 +1,1 @@
-from PYBackEnd.models.message import Message
+from models.message import Message

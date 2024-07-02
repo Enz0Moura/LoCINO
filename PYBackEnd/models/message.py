@@ -1,6 +1,6 @@
 import uuid
 
-from PYBackEnd.models.model_base import ModelBase
+from models.model_base import ModelBase
 from datetime import datetime
 import sqlalchemy as sa
 class Message(ModelBase):
@@ -10,4 +10,3 @@ class Message(ModelBase):
     success: bool = sa.Column(sa.Boolean, nullable=False)
     message: str = sa.Column(sa.String, nullable=True)
     recieved_at: datetime = sa.Column(sa.DateTime, nullable=False, default=datetime.now)
-    

@@ -1,5 +1,7 @@
 import os
 import sys
+from datetime import datetime, timedelta
+import time
 
 import serial
 
@@ -92,7 +94,12 @@ def main():
         battery=15
     )
 
-    send_message(arduino_port, message)
+    start_time = datetime.now()
+    end_time = start_time + timedelta(hours=5)
+    while datetime.now() < end_time:
+        send_message(arduino_port, message)
+        time.sleep(120)
+
 
 
 if __name__ == "__main__":

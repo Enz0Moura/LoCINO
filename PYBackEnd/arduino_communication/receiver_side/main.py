@@ -35,8 +35,8 @@ def receive_and_store_message(arduino_port):
 
                             if response[:2] == b'\xFF\xFF':
                                 print(response)
-                                message = response[2:(message_len-2)]
-                                received_checksum = response[(message_len-2):message_len]
+                                message = response[2:17]
+                                received_checksum = response[17:message_len]
                                 parsed_data = MessageModel.parse(message)
                                 print(f"Deserialized message:{parsed_data}\nCheck Sum: {received_checksum}")
                                 success = False if not MessageModel.vef_checksum(message, received_checksum) else True

@@ -1,4 +1,4 @@
-from construct import BitStruct, Flag, BitsInteger
+from construct import BitStruct, Flag, BitsInteger, Float32b, Padding
 
 
 class Message:
@@ -6,17 +6,17 @@ class Message:
 
     _message_bits_schema = BitStruct(
         "message_type" / Flag,
-        "id" / BitsInteger(15),
+        "id" / BitsInteger(16),
         "latitude" / BitsInteger(24),
         "longitude" / BitsInteger(24),
         "group_flag" / Flag,
-        "record_time" / BitsInteger(16),
-        "max_records" / BitsInteger(11),
-        "hop_count" / BitsInteger(4),
+        "record_time" / BitsInteger(32),
+        "max_records" / BitsInteger(8),
+        "hop_count" / BitsInteger(8),
         "channel" / BitsInteger(2),
         "location_time" / BitsInteger(16),
         "help_flag" / BitsInteger(2),
-        "battery" / BitsInteger(4),
+        "battery" / BitsInteger(2),
     )
 
     def __init__(self, **kwargs):

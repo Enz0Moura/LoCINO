@@ -34,8 +34,8 @@ def send_message(arduino_port, message):
             )
             serialized_message = msg.build()
         except Exception as e:
-            print(f"Error on creating or serializing message: {e}")
-            exit(1)
+            raise Exception(f"Error on creating or serializing message: {e}")
+
 
         print(f"Message len: {len(serialized_message)} bytes")
 
@@ -43,6 +43,7 @@ def send_message(arduino_port, message):
         header = b'\xFF\xFF'
         check_sum = MessageModel.generate_checksum(serialized_message)
         message_with_header = header + serialized_message + check_sum
+        print(f"Message with header len: {len(message_with_header)} bytes")
 
         try:
             # Envia a mensagem serializada via porta serial
@@ -85,20 +86,20 @@ def main():
         latitude=50.1234,
         longitude=8.1234,
         group_flag=False,
-        record_time=12345,
-        max_records=2047,
+        record_time=int(time.time()),
+        max_records=255,
         hop_count=15,
         channel=3,
-        location_time=6789,
+        location_time=0,
         help_flag=2,
-        battery=15
+        battery=3
     )
 
     start_time = datetime.now()
     end_time = start_time + timedelta(hours=5)
     while datetime.now() < end_time:
         send_message(arduino_port, message)
-        time.sleep(120)
+        time.sleep(60)
 
 
 

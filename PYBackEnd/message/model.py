@@ -1,5 +1,4 @@
-from construct import BitStruct, Flag, BitsInteger, Float32b, Padding
-
+from construct import BitStruct, Flag, BitsInteger
 
 class Message:
     __slots__ = ["data"]

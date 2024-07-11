@@ -41,7 +41,7 @@ def receive_and_store_message(arduino_port):
                                 print(f"Deserialized message:{parsed_data}\nCheck Sum: {received_checksum}")
                                 success = False if not MessageModel.vef_checksum(message, received_checksum) else True
                                 print(f"{'Error' if not success else 'Success'} handling message. Checksum {'differs.' if not success else 'is equal.'}")
-                                store_message(json.dumps(parsed_data), success)
+                                store_message(json.dumps(parsed_data), success, use_my_sql=True)
                             else:
                                 print("Incorrect Header, ignoring message:",
                                       ' '.join(format(x, '02X') for x in response))

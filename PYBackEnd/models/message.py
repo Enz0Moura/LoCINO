@@ -8,6 +8,7 @@ class Message(ModelBase):
 
     id: uuid = sa.Column(sa.Uuid, primary_key=True, default=uuid.uuid4)
     success: bool = sa.Column(sa.Boolean, nullable=False)
+    group_id: int = sa.Column(sa.Integer, nullable=True)
     message: str = sa.Column(sa.VARCHAR(450), nullable=True)
     battery: int = sa.Column(sa.Integer, nullable=True)
     channel: int = sa.Column(sa.Integer, nullable=True)

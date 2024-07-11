@@ -9,7 +9,7 @@ def insert_message_result(success: bool, message: dict, use_my_sql: bool = False
     print(f"Adding {str(success)} message to database")
     record_time = datetime.fromtimestamp(message.pop('record_time'))
     if message is not None:
-        message = Message(success=success, message=json.dumps(message), battery=message['battery'],
+        message = Message(success=success, message=json.dumps(message), group_id= message['id'], battery=message['battery'],
                           channel=message['channel'], group_flag=message['group_flag'], hop_count=message['hop_count'],
                           help_flag=message['help_flag'], latitude=message['latitude'], longitude=message['longitude'],
                           location_time=datetime.now(), max_records=message['max_records'],

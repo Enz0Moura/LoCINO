@@ -3,7 +3,6 @@ cffi==1.16.0
 construct==2.10.70
 cryptography==42.0.8
 greenlet==3.0.3
-PYBackEnd @ file:///home/enzo-moura/PycharmProjects/LoCINO/PYBackEnd
 pycparser==2.22
 pydantic==2.7.2
 pydantic_core==2.18.3

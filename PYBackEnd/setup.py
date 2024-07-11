@@ -10,7 +10,7 @@ from conf.db_session import create_tables
 def read_requirements():
     requirements_path = os.path.join(os.path.dirname(__file__), 'requirements.txt')
     if os.path.isfile(requirements_path):
-        with open(requirements_path, 'r', encoding='utf-16le') as req_file:
+        with open(requirements_path, 'r', encoding='utf-8') as req_file:
             requirements = req_file.read().splitlines()
             if requirements and requirements[0].startswith('\ufeff'):
                 requirements[0] = requirements[0][1:]

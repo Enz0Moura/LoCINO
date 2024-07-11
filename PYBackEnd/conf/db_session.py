@@ -52,6 +52,9 @@ def create_session(use_my_sql: bool=False) -> Session:
     if not __engine:
         __engine = create_engine(use_my_sql)
 
+    if use_my_sql and __engine:
+        __engine = create_engine(use_my_sql)
+
     __session = sessionmaker(bind=__engine, expire_on_commit=False, class_=Session)
 
     session: Session = __session()

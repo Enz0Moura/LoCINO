@@ -11,11 +11,11 @@ def find_arduino_port():
     return None
 
 
-def store_message(received_data, success=True):
+def store_message(received_data, success=True, use_my_sql: bool = False):
     project_root = os.path.dirname(os.path.abspath(__file__))
     db_directory = os.path.join(project_root, 'db')
 
     if not os.path.exists(db_directory):
         os.makedirs(db_directory)
 
-    insert_message_result(success, received_data)
+    insert_message_result(success, received_data, use_my_sql)

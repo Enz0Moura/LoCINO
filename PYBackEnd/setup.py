@@ -1,6 +1,8 @@
 import os
+import sys
 from setuptools import setup, find_packages
 from setuptools.command.install import install
+import argparse
 
 from conf.db_session import create_tables
 
@@ -17,10 +19,8 @@ def read_requirements():
 
 class CustomInstallCommand(install):
     """Custom handler for the 'install' command."""
-
     def run(self):
         install.run(self)
-
         create_tables()
 
 

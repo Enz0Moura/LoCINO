@@ -80,9 +80,9 @@ class Message:
     def parse(cls, data):
         parsed_data = cls._message_bits_schema.parse(data)
         if 'latitude' in parsed_data:
-            parsed_data['latitude'] = Message.__cord_from_24bit(parsed_data['latitude'], -90, 90)
+            parsed_data['latitude'] = Message.cord_from_24bit(parsed_data['latitude'], -90, 90)
         if 'longitude' in parsed_data:
-            parsed_data['longitude'] = Message.__cord_from_24bit(parsed_data['longitude'], -180, 180)
+            parsed_data['longitude'] = Message.cord_from_24bit(parsed_data['longitude'], -180, 180)
         data = dict(parsed_data)
         data.pop('_io', None)
         return data

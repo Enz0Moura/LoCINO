@@ -9,6 +9,12 @@ from message.model import Message as MessageModel
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 message_len = 21
+
+def send_beacon(arduino_port):
+    if arduino_port:
+        print(f"Arduino found on port: {arduino_port}")
+    try:
+
 def receive_and_store_message(arduino_port):
     global message_len
     if arduino_port:

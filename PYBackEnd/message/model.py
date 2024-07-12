@@ -4,7 +4,7 @@ class Message:
     __slots__ = ["data"]
 
     _message_bits_schema = BitStruct(
-        "message_type" / Flag,
+        "type" / Flag,
         "id" / BitsInteger(16),
         "latitude" / BitsInteger(24),
         "longitude" / BitsInteger(24),
@@ -54,6 +54,14 @@ class Message:
 
     def build(self):
         return self._build(self.data)
+
+    @classmethod
+    def cord_to_24bit(cls, value, range_min, range_max, bits=24):
+        return cls.__cord_to_24bit(value, range_min, range_max, bits)
+
+    @classmethod
+    def cord_from_24bit(cls, value, range_min, range_max, bits=24):
+        return cls.__cord_from_24bit(value, range_min, range_max, bits)
 
     @classmethod
     def _build(cls, data):

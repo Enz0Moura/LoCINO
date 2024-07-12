@@ -8,9 +8,10 @@ import serial
 from arduino_communication.utils import find_arduino_port
 from message.model import Message as MessageModel
 from message.schemas import Message as MessageSchema
+from beacon.model import Beacon as BeaconModel
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-
+BEACONLEN = 10
 
 def send_message(arduino_port, message):
     if arduino_port:
@@ -76,28 +77,70 @@ def send_message(arduino_port, message):
     else:
         print("Arduino not found")
 
+def listen_beacon(arduino_port):
+    global BEACONLEN
+    if arduino_port:
+        print(f"Arduino found on port: {arduino_port}")
+
+        with serial.Serial(arduino_port, 9600, timeout=5) as ser:
+            buffer = b''
+            while True:
+                if ser.in_waiting > 0:
+                    buffer += ser.read(ser.in_waiting)
+                    while len(buffer) >= BEACONLEN:
+                        header_index = buffer.find(b'\xFF\xFF')
+                        if header_index == -1:
+                            # Se não encontrar o cabeçalho, limpe o buffer para evitar dados antigos
+                            buffer = b''
+                        elif header_index > 0:
+                            # Se encontrar o cabeçalho mas não estiver no início, remova bytes anteriores
+                            buffer = buffer[header_index:]
+                        if len(buffer) >= BEACONLEN:
+                            response = buffer[:BEACONLEN]
+                            buffer = buffer[BEACONLEN:]
+
+                            print("Received message from Arduino:", ' '.join(format(x, '02X') for x in response))
+
+                            if response[:2] == b'\xFF\xFF':
+                                print(response)
+                                message = response[2:(BEACONLEN - 2)]
+                                # received_checksum = response[(BEACONLEN - 2):BEACONLEN]
+                                parsed_data = BeaconModel.parse(message)
+                                print(f"Deserialized message:{parsed_data}\n")
+                                # success = False if not MessageModel.vef_checksum(message, received_checksum) else True
+                                # print(
+                                #     f"{'Error' if not success else 'Success'} handling message. Checksum {'differs.' if not success else 'is equal.'}")
+                            else:
+                                print("Incorrect Header, ignoring message:",
+                                      ' '.join(format(x, '02X') for x in response))
+    else:
+        print("Arduino not found")
+
 
 # Function test
 def main():
     arduino_port = find_arduino_port()
-    message = MessageSchema(
-        message_type=True,
-        id=1,
-        latitude=50.1234,
-        longitude=8.1234,
-        group_flag=False,
-        record_time=int(time.time()),
-        max_records=255,
-        hop_count=15,
-        channel=3,
-        location_time=0,
-        help_flag=2,
-        battery=3
-    )
-
     start_time = datetime.now()
     end_time = start_time + timedelta(hours=5)
     while datetime.now() < end_time:
+        beacon = 0
+        while beacon == 0:
+            beacon = listen_beacon(arduino_port)
+
+        message = MessageSchema(
+            message_type=True,
+            id=1,
+            latitude=50.1234,
+            longitude=8.1234,
+            group_flag=False,
+            record_time=int(time.time()),
+            max_records=255,
+            hop_count=15,
+            channel=3,
+            location_time=0,
+            help_flag=2,
+            battery=3
+        )
         send_message(arduino_port, message)
         time.sleep(60)
 

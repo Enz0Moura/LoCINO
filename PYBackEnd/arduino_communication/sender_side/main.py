@@ -20,7 +20,7 @@ def send_message(arduino_port, message):
         # Inicialização da mensagem
         try:
             msg = MessageModel(
-                message_type=message.message_type,
+                type=message.type,
                 id=message.id,
                 latitude=message.latitude,
                 longitude=message.longitude,
@@ -87,32 +87,8 @@ def listen_beacon(arduino_port):
             while True:
                 if ser.in_waiting > 0:
                     buffer += ser.read(ser.in_waiting)
-                    while len(buffer) >= BEACONLEN:
-                        header_index = buffer.find(b'\xFF\xFF')
-                        if header_index == -1:
-                            # Se não encontrar o cabeçalho, limpe o buffer para evitar dados antigos
-                            buffer = b''
-                        elif header_index > 0:
-                            # Se encontrar o cabeçalho mas não estiver no início, remova bytes anteriores
-                            buffer = buffer[header_index:]
-                        if len(buffer) >= BEACONLEN:
-                            response = buffer[:BEACONLEN]
-                            buffer = buffer[BEACONLEN:]
-
-                            print("Received message from Arduino:", ' '.join(format(x, '02X') for x in response))
-
-                            if response[:2] == b'\xFF\xFF':
-                                print(response)
-                                message = response[2:(BEACONLEN - 2)]
-                                # received_checksum = response[(BEACONLEN - 2):BEACONLEN]
-                                parsed_data = BeaconModel.parse(message)
-                                print(f"Deserialized message:{parsed_data}\n")
-                                # success = False if not MessageModel.vef_checksum(message, received_checksum) else True
-                                # print(
-                                #     f"{'Error' if not success else 'Success'} handling message. Checksum {'differs.' if not success else 'is equal.'}")
-                            else:
-                                print("Incorrect Header, ignoring message:",
-                                      ' '.join(format(x, '02X') for x in response))
+                    if buffer.find("ACK".encode()) > -1:
+                        return 1
     else:
         print("Arduino not found")
 
@@ -128,7 +104,7 @@ def main():
             beacon = listen_beacon(arduino_port)
 
         message = MessageSchema(
-            message_type=True,
+            type=True,
             id=1,
             latitude=50.1234,
             longitude=8.1234,

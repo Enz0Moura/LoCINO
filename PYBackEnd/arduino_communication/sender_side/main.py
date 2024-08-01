@@ -99,8 +99,10 @@ def main():
     start_time = datetime.now()
     end_time = start_time + timedelta(hours=5)
     coordinates = [
-        (-22.509997449415415, -43.18229837292253),
-        (-22.510304703568117, -43.184186648149826),
+        (-22.5118074, -43.1788471),
+        (-22.5099877, -43.1753572),
+        (-22.5087312, -43.1723941),
+        (-22.5071419, -43.1694926)
     ]
     coordinate_index = 0
 
@@ -138,12 +140,12 @@ def main():
             # beacon = 0
             # while beacon == 0:
             #     beacon = listen_beacon(arduino_port)
-
+            lat, long = coordinates[coordinate_index]
             message = MessageSchema(
                 type=True,
                 id=1,
-                latitude=-22.509997449415415,
-                longitude=-43.18229837292253,
+                latitude=lat,
+                longitude=long,
                 group_flag=False,
                 record_time=int(time.time()),
                 max_records=255,

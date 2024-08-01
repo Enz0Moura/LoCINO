@@ -64,6 +64,51 @@ def calculate_average_speed(points, use_haversine=False):
     return total_distance / total_time
 
 
+def calculate_destination(lat, long, distance_km, azimuth):
+    km_per_degree_long = KM_PER_DEGREE * cos(radians(lat))
+    delta_lat = (distance_km / KM_PER_DEGREE) * cos(radians(azimuth))
+    delta_long = (distance_km / km_per_degree_long) * sin(radians(azimuth))
+    return (lat + delta_lat, long + delta_long)
+
+def calculate_displacement_area(average_speed_m_s, initial_point, last_timestamp, step_degrees=10):
+    current_timestamp = datetime.now()
+    elapsed_time_seconds = (current_timestamp - last_timestamp).total_seconds()
+    max_distance_meters = average_speed_m_s * elapsed_time_seconds
+    max_distance_km = max_distance_meters / 1000
+
+    initial_point = (initial_point[0], initial_point[1])
+
+    displacement_points = []
+    for azimuth in range(0, 360, step_degrees):
+        displacement_points.append(calculate_destination(initial_point[0], initial_point[1], max_distance_km, azimuth))
+
+    displacement_area_m2 = pi * (max_distance_meters ** 2)
+    return displacement_points, displacement_area_m2, max_distance_meters
+
+if __name__ == '__main__':
+    # List of points (latitude, longitude, datetime) simulating a trail
+    trail_points = [
+        (-20.1435, -44.8912, datetime(2024, 7, 31, 20, 0, 0)),
+        (-20.1345, -44.8800, datetime(2024, 7, 31, 21, 10, 0))
+    ]
+
+    average_speed = calculate_average_speed(trail_points, use_haversine=False)
+    print(f"The average speed on the trail is {average_speed:.2f} m/s")
+
+    initial_point = (-20.1435, -44.8912)
+    last_timestamp = datetime(2024, 7, 31, 21, 10, 0)
+    displacement_area, displacement_area_m2, max_distance_meters = calculate_displacement_area(average_speed,
+                                                                                               initial_point,
+                                                                                               last_timestamp,
+                                                                                               step_degrees=10)
+    print("Possible displacement area (points of the circle):")
+    for point in displacement_area:
+        print(point)
+    print("Possible displacement area (M²")
+    print(displacement_area_m2)
+    print(f"Max distance meters: \n{max_distance_meters}")
+
+
 # if __name__ == '__main__':
 #     dist1 = calculate_distance(-20.1435, -44.8912, -20.0739, -44.5734)
 #     print(f"A distância é {dist1:.2f}KM")
@@ -99,13 +144,3 @@ def calculate_average_speed(points, use_haversine=False):
 #
 #     total_distance = calculate_total_distance(trail_points, use_haversine=False)
 #     print(f"A distância total percorrida na trilha é {total_distance:.2f}KM")
-
-if __name__ == '__main__':
-    # Lista de pontos (latitude, longitude, datetime) simulando uma trilha
-    trail_points = [
-        (-20.1435, -44.8912, datetime(2024, 7, 12, 9, 0, 0)),
-        (-20.1345, -44.8800, datetime(2024, 7, 12, 9, 10, 0))
-    ]
-
-    average_speed = calculate_average_speed(trail_points, use_haversine=False)
-    print(f"A velocidade média na trilha é {average_speed:.2f} m/s")

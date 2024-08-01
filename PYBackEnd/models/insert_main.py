@@ -13,7 +13,7 @@ def insert_message_result(success: bool, message: dict, use_my_sql: bool = False
                           channel=message['channel'], group_flag=message['group_flag'], hop_count=message['hop_count'],
                           help_flag=message['help_flag'], latitude=message['latitude'], longitude=message['longitude'],
                           location_time=datetime.now(), max_records=message['max_records'],
-                          message_type=message['message_type'], record_time=record_time)
+                          message_type=message['type'], record_time=record_time)
     else:
         message = Message(success=success, message=str(message), location_time=datetime.now())
 

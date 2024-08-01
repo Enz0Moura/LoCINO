@@ -43,11 +43,10 @@ def send_beacon(arduino_port):
                 try:
                     while True:
                         ack = ser.readline().decode('utf-8', errors='ignore').strip()
-                        print(f"Received: {ack}")
                         if ack == "ACK":
                             print("Confirmation received: handshake started")
                             return 1
-                        else:
+                        elif ack == "No confirmation received":
                             print("No confirmation received")
                             return 0
 
@@ -67,8 +66,7 @@ def receive_and_store_message(arduino_port, use_my_sql=False):
         print(f"Arduino found on port: {arduino_port}")
 
         with serial.Serial(arduino_port, 9600, timeout=5) as ser:
-            buffer = b'\xFF\xFF'
-            ser.write(buffer)
+            buffer = b''
             while True:
                 if ser.in_waiting > 0:
                     buffer += ser.read(ser.in_waiting)
@@ -107,11 +105,11 @@ def receive_and_store_message(arduino_port, use_my_sql=False):
 
 def main():
     arduino_port = find_arduino_port()
-    ack = 0
-    while (ack == 0):
-        ack = send_beacon(arduino_port)
-        if ack == 0:
-            time.sleep(5)
+    # ack = 0
+    # while (ack == 0):
+    #     ack = send_beacon(arduino_port)
+    #     if ack == 0:
+    #         time.sleep(5)
 
     receive_and_store_message(arduino_port, use_my_sql=False)
 

@@ -135,9 +135,9 @@ def main():
     while True:
         user_input = input("Send message?\n")
         if user_input == "1":
-            beacon = 0
-            while beacon == 0:
-                beacon = listen_beacon(arduino_port)
+            # beacon = 0
+            # while beacon == 0:
+            #     beacon = listen_beacon(arduino_port)
 
             message = MessageSchema(
                 type=True,

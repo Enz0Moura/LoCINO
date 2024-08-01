@@ -1,17 +1,16 @@
 import os
 import sys
-from datetime import datetime, timedelta
 import time
+from datetime import datetime, timedelta
 
 import serial
-
 from arduino_communication.utils import find_arduino_port
 from message.model import Message as MessageModel
 from message.schemas import Message as MessageSchema
-from beacon.model import Beacon as BeaconModel
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 BEACONLEN = 10
+
 
 def send_message(arduino_port, message):
     if arduino_port:
@@ -34,9 +33,9 @@ def send_message(arduino_port, message):
                 battery=message.battery,
             )
             serialized_message = msg.build()
+
         except Exception as e:
             raise Exception(f"Error on creating or serializing message: {e}")
-
 
         print(f"Message len: {len(serialized_message)} bytes")
 
@@ -77,6 +76,7 @@ def send_message(arduino_port, message):
     else:
         print("Arduino not found")
 
+
 def listen_beacon(arduino_port):
     global BEACONLEN
     if arduino_port:
@@ -98,28 +98,70 @@ def main():
     arduino_port = find_arduino_port()
     start_time = datetime.now()
     end_time = start_time + timedelta(hours=5)
-    while datetime.now() < end_time:
-        beacon = 0
-        while beacon == 0:
-            beacon = listen_beacon(arduino_port)
+    coordinates = [
+        (-22.509997449415415, -43.18229837292253),
+        (-22.510304703568117, -43.184186648149826),
+    ]
+    coordinate_index = 0
 
-        message = MessageSchema(
+    memory = [MessageSchema(
+        type=True,
+        id=2,
+        latitude=-22.509997449415415,
+        longitude=-43.18229837292253,
+        group_flag=False,
+        record_time=int(time.time() - ((1 * 60 * 60) + (5 * 60))),
+        max_records=255,
+        hop_count=15,
+        channel=3,
+        location_time=0,
+        help_flag=2,
+        battery=3),
+        MessageSchema(
             type=True,
-            id=1,
-            latitude=50.1234,
-            longitude=8.1234,
+            id=2,
+            latitude=-22.510304703568117,
+            longitude=-43.184186648149826,
             group_flag=False,
-            record_time=int(time.time()),
+            record_time=int(time.time() - (1 * 60 * 60)),
             max_records=255,
             hop_count=15,
             channel=3,
             location_time=0,
             help_flag=2,
-            battery=3
-        )
-        send_message(arduino_port, message)
-        time.sleep(60)
+            battery=3)
+    ]
 
+    while True:
+        user_input = input("Send message?\n")
+        if user_input == "1":
+            beacon = 0
+            while beacon == 0:
+                beacon = listen_beacon(arduino_port)
+
+            message = MessageSchema(
+                type=True,
+                id=1,
+                latitude=-22.509997449415415,
+                longitude=-43.18229837292253,
+                group_flag=False,
+                record_time=int(time.time()),
+                max_records=255,
+                hop_count=15,
+                channel=3,
+                location_time=0,
+                help_flag=2,
+                battery=3
+            )
+            send_message(arduino_port, message)
+            if len(memory) > 0:
+                for message in memory:
+                    send_message(arduino_port, message)
+                    memory.remove(message)
+            coordinate_index = (coordinate_index + 1) % len(coordinates)
+        if user_input == '3':
+            break
+        # time.sleep(60)
 
 
 if __name__ == "__main__":

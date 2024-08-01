@@ -61,7 +61,7 @@ def send_beacon(arduino_port):
         return
 
 
-def receive_and_store_message(arduino_port):
+def receive_and_store_message(arduino_port, use_my_sql=False):
     global message_len
     if arduino_port:
         print(f"Arduino found on port: {arduino_port}")
@@ -96,11 +96,11 @@ def receive_and_store_message(arduino_port):
                                 print(
                                     f"{'Error' if not success else 'Success'} handling message. Checksum {'differs.' if not success else 'is equal.'}")
 
-                                store_message(parsed_data, success, use_my_sql=True)
+                                store_message(parsed_data, success, use_my_sql)
                             else:
                                 print("Incorrect Header, ignoring message:",
                                       ' '.join(format(x, '02X') for x in response))
-                                store_message(None, False, use_my_sql=True)
+                                store_message(None, False, use_my_sql)
     else:
         print("Arduino not found")
 
@@ -113,7 +113,7 @@ def main():
         if ack == 0:
             time.sleep(5)
 
-    receive_and_store_message(arduino_port)
+    receive_and_store_message(arduino_port, use_my_sql=False)
 
 
 if __name__ == "__main__":

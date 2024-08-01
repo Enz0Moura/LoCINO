@@ -88,15 +88,15 @@ def calculate_displacement_area(average_speed_m_s, initial_point, last_timestamp
 if __name__ == '__main__':
     # List of points (latitude, longitude, datetime) simulating a trail
     trail_points = [
-        (-20.1435, -44.8912, datetime(2024, 7, 31, 20, 0, 0)),
-        (-20.1345, -44.8800, datetime(2024, 7, 31, 21, 10, 0))
+        (-22.509997449415415, -43.18229837292253, datetime(2024, 8, 1, 6, 0, 0)),
+        (-22.510304703568117, -43.184186648149826, datetime(2024, 8, 1, 6, 5, 0))
     ]
 
     average_speed = calculate_average_speed(trail_points, use_haversine=False)
     print(f"The average speed on the trail is {average_speed:.2f} m/s")
 
-    initial_point = (-20.1435, -44.8912)
-    last_timestamp = datetime(2024, 7, 31, 21, 10, 0)
+    initial_point = (-22.510304703568117, -43.184186648149826)
+    last_timestamp = datetime(2024, 8, 1, 6, 5, 0)
     displacement_area, displacement_area_m2, max_distance_meters = calculate_displacement_area(average_speed,
                                                                                                initial_point,
                                                                                                last_timestamp,

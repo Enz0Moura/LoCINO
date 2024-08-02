@@ -4,9 +4,12 @@ import time
 from datetime import datetime, timedelta
 
 import serial
+from arduino_communication.receiver_side.main import receive_and_store_message
 from arduino_communication.utils import find_arduino_port
 from message.model import Message as MessageModel
 from message.schemas import Message as MessageSchema
+
+from arduino_communication.receiver_side.main import send_beacon
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 BEACONLEN = 10
@@ -68,7 +71,7 @@ def send_message(arduino_port, message):
                             break
                         else:
                             print("No confirmation received or incorrect confirmation")
-
+                    receive_and_store_message(arduino_port, False)
                 except serial.SerialTimeoutException:
                     print("Timeout: No confirmation received")
         except serial.SerialException as e:
@@ -84,11 +87,10 @@ def listen_beacon(arduino_port):
 
         with serial.Serial(arduino_port, 9600, timeout=5) as ser:
             buffer = b''
-            while True:
-                if ser.in_waiting > 0:
-                    buffer += ser.read(ser.in_waiting)
-                    if buffer.find("ACK".encode()) > -1:
-                        return 1
+            if ser.in_waiting > 0:
+                buffer += ser.read(ser.in_waiting)
+                if buffer.find("Beacon Received".encode()) > -1:
+                    return 1
     else:
         print("Arduino not found")
 
@@ -137,9 +139,6 @@ def main():
     while True:
         user_input = input("Send message?\n")
         if user_input == "1":
-            # beacon = 0
-            # while beacon == 0:
-            #     beacon = listen_beacon(arduino_port)
             lat, long = coordinates[coordinate_index]
             message = MessageSchema(
                 type=True,
@@ -155,12 +154,17 @@ def main():
                 help_flag=2,
                 battery=3
             )
-            send_message(arduino_port, message)
-            if len(memory) > 0:
-                for message in memory:
-                    send_message(arduino_port, message)
-                    memory.remove(message)
+            # if len(memory) > 0:
+            #     for message in memory:
+            #         send_message(arduino_port, message)
+            #         memory.remove(message)
             coordinate_index = (coordinate_index + 1) % len(coordinates)
+            if send_beacon(arduino_port):
+                receive_and_store_message(arduino_port, False)
+                send_message(arduino_port, message)
+            elif listen_beacon(arduino_port):
+                send_message(arduino_port, message)
+                receive_and_store_message(arduino_port, True)
         if user_input == '3':
             break
         # time.sleep(60)

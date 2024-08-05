@@ -66,7 +66,7 @@ def send_message(arduino_port, message):
                     while True:
                         ack = ser.readline().decode('utf-8', errors='ignore').strip()
                         print(f"Received: {ack}")
-                        if ack == "ACK":
+                        if ack.find("ACK") != -1:
                             print("Confirmation received: message sent")
                             break
                         else:
@@ -87,10 +87,15 @@ def listen_beacon(arduino_port):
 
         with serial.Serial(arduino_port, 9600, timeout=5) as ser:
             buffer = b''
-            if ser.in_waiting > 0:
-                buffer += ser.read(ser.in_waiting)
-                if buffer.find("Beacon Received".encode()) > -1:
-                    return 1
+            start_time = time.time()
+            #while time.time() - start_time < 3:
+            while True:
+                buffer = b''
+                if ser.in_waiting > 0:
+                    buffer += ser.read(ser.in_waiting)
+                    if buffer.find("Beacon Received".encode()) != -1:
+                        return 1
+            return None
     else:
         print("Arduino not found")
 
@@ -137,7 +142,7 @@ def main():
     ]
 
     while True:
-        user_input = input("Send message?\n")
+        user_input = "1" #input("Send message?\n")
         if user_input == "1":
             lat, long = coordinates[coordinate_index]
             message = MessageSchema(
@@ -159,12 +164,15 @@ def main():
             #         send_message(arduino_port, message)
             #         memory.remove(message)
             coordinate_index = (coordinate_index + 1) % len(coordinates)
+            # if listen_beacon(arduino_port):
+            #     send_message(arduino_port, message)
+            #     response = 0
+            #     while response == 0:
+            #         response = receive_and_store_message(arduino_port, True)
+            # elif send_beacon(arduino_port):
             if send_beacon(arduino_port):
                 receive_and_store_message(arduino_port, False)
                 send_message(arduino_port, message)
-            elif listen_beacon(arduino_port):
-                send_message(arduino_port, message)
-                receive_and_store_message(arduino_port, True)
         if user_input == '3':
             break
         # time.sleep(60)

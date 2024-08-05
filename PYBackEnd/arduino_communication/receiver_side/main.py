@@ -29,27 +29,24 @@ def send_beacon(arduino_port):
         try:
             # Envia a mensagem serializada via porta serial
             with serial.Serial(arduino_port, 9600, timeout=2) as ser:
-                while True:
-                    ready_message = ser.readline().decode('utf-8', errors='ignore').strip()
-                    if ready_message == "READY":
-                        break
-                    else:
-                        print(f"Waiting READY, received: {ready_message}")
-
+                response = b''
+                while b"Sending Beacon" not in response:
+                    response += ser.read(ser.in_waiting or 1)
                 ser.write(beacon_with_header)
                 print("Beacon sent: ", beacon_with_header)
 
                 # Esperando confirmação do Arduino
                 try:
-                    while True:
-                        print("Waiting for ACK")
-                        ack = ser.readline().decode('utf-8', errors='ignore').strip()
-                        if ack.find("No confirmation received"):
-                            print("No confirmation received")
-                            return None
-                        elif ack.find("ACK"):
-                            print("Confirmation received: handshake started")
-                            return 1
+                    while b"No confirmation received" not in response and b"ACK" not in response:
+                        response += ser.read(ser.in_waiting or 1)
+                    print("Waiting for ACK")
+                    if b"No confirmation received" in response:
+                        print("No confirmation received")
+                        return None
+                    elif b"ACK" in response:
+                        print("Confirmation received: handshake started")
+                        return 1
+
 
                 except serial.SerialTimeoutException:
                     print("Timeout: No confirmation received")
@@ -65,7 +62,6 @@ def receive_and_store_message(arduino_port, use_my_sql=False):
     global message_len
     if arduino_port:
         print(f"Arduino found on port: {arduino_port}")
-
         with serial.Serial(arduino_port, 9600, timeout=5) as ser:
             buffer = b''
             if ser.in_waiting > 0:
@@ -75,6 +71,7 @@ def receive_and_store_message(arduino_port, use_my_sql=False):
                     if header_index == -1:
                         # Se não encontrar o cabeçalho, limpe o buffer para evitar dados antigos
                         buffer = b''
+                        return 0
                     elif header_index > 0:
                         # Se encontrar o cabeçalho mas não estiver no início, remova bytes anteriores
                         buffer = buffer[header_index:]
@@ -95,10 +92,15 @@ def receive_and_store_message(arduino_port, use_my_sql=False):
                                 f"{'Error' if not success else 'Success'} handling message. Checksum {'differs.' if not success else 'is equal.'}")
 
                             store_message(parsed_data, success, use_my_sql)
+                            return 1
                         else:
                             print("Incorrect Header, ignoring message:",
                                   ' '.join(format(x, '02X') for x in response))
                             store_message(None, False, use_my_sql)
+                            return 1
+
+            else:
+                return 0
     else:
         print("Arduino not found")
 

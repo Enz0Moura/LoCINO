@@ -62,22 +62,22 @@ def receive_and_store_message(arduino_port, use_my_sql=False):
     global message_len
     if arduino_port:
         print(f"Arduino found on port: {arduino_port}")
+
         with serial.Serial(arduino_port, 9600, timeout=5) as ser:
             buffer = b''
-            if ser.in_waiting > 0:
-                buffer += ser.read(ser.in_waiting)
-                while len(buffer) >= message_len:
-                    header_index = buffer.find(b'\xFF\xFF')
-                    if header_index == -1:
-                        # Se não encontrar o cabeçalho, limpe o buffer para evitar dados antigos
-                        buffer = b''
-                        return 0
-                    elif header_index > 0:
-                        # Se encontrar o cabeçalho mas não estiver no início, remova bytes anteriores
-                        buffer = buffer[header_index:]
-                    if len(buffer) >= message_len:
-                        response = buffer[:message_len]
-                        buffer = buffer[message_len:]
+            while True:
+                if ser.in_waiting > 0:
+                    buffer += ser.read(ser.in_waiting)
+                    while len(buffer) >= message_len:
+                        header_index = buffer.find(b'\xFF\xFF')
+                        if header_index == -1:
+                            # Se não encontrar o cabeçalho, limpe o buffer para evitar dados antigos
+                            buffer = b''
+                        elif header_index > 0:
+                            # Se encontrar o cabeçalho mas não estiver no início, remova bytes anteriores
+                            buffer = buffer[header_index:]
+                        if len(buffer) >= message_len:
+                            response = buffer[:message_len]
 
                         print("Received message from Arduino:", ' '.join(format(x, '02X') for x in response))
 

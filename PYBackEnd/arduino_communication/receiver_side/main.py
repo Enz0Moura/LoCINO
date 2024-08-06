@@ -29,7 +29,6 @@ def receive_and_store_message(arduino_port):
                             buffer = buffer[header_index:]
                         if len(buffer) >= message_len:
                             response = buffer[:message_len]
-                            buffer = buffer[message_len:]
 
                             print("Received message from Arduino:", ' '.join(format(x, '02X') for x in response))
 
@@ -43,10 +42,12 @@ def receive_and_store_message(arduino_port):
                                 print(f"{'Error' if not success else 'Success'} handling message. Checksum {'differs.' if not success else 'is equal.'}")
 
                                 store_message(parsed_data, success, use_my_sql=True)
+                                return
                             else:
                                 print("Incorrect Header, ignoring message:",
                                       ' '.join(format(x, '02X') for x in response))
                                 store_message(None, False, use_my_sql=True)
+                                return
     else:
         print("Arduino not found")
 

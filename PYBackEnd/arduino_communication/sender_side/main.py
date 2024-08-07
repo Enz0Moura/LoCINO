@@ -8,12 +8,56 @@ from arduino_communication.receiver_side.main import receive_and_store_message
 from arduino_communication.utils import find_arduino_port
 from message.model import Message as MessageModel
 from message.schemas import Message as MessageSchema
-
-from arduino_communication.receiver_side.main import send_beacon
+from beacon.model import Beacon as BeaconModel
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 BEACONLEN = 10
 
+def send_beacon(arduino_port):
+    if arduino_port:
+        print(f"Arduino found on port: {arduino_port}")
+        try:
+            beacon = BeaconModel(type=3, id=2, latitude=55.55, longitude=-77.77)
+            serialized_beacon = beacon.build()
+        except Exception as e:
+            raise Exception(f"Error on creating or serializing message: {e}")
+
+        header = b'\xFF\xFF'
+
+        beacon_with_header = header + serialized_beacon
+
+        print(f"Message with header len: {len(beacon_with_header)} bytes")
+
+        try:
+            # Envia a mensagem serializada via porta serial
+            with serial.Serial(arduino_port, 9600, timeout=2) as ser:
+                response = b''
+                while b"Sending Beacon" not in response:
+                    response += ser.read(ser.in_waiting or 1)
+                ser.write(beacon_with_header)
+                print("Beacon sent: ", beacon_with_header)
+
+                # Esperando confirmação do Arduino
+                try:
+                    while b"No confirmation received" not in response and b"ACK" not in response:
+                        response += ser.read(ser.in_waiting or 1)
+                    print("Waiting for ACK")
+                    if b"No confirmation received" in response:
+                        print("No confirmation received")
+                        return None
+                    elif b"ACK" in response:
+                        print("Confirmation received: handshake started")
+                        return 1
+
+
+                except serial.SerialTimeoutException:
+                    print("Timeout: No confirmation received")
+        except serial.SerialException as e:
+            print(f"Serial communication error: {e}")
+
+    else:
+        print("Arduino not found")
+        return
 
 def send_message(arduino_port, message):
     if arduino_port:
@@ -71,7 +115,6 @@ def send_message(arduino_port, message):
                             break
                         else:
                             print("No confirmation received or incorrect confirmation")
-                    receive_and_store_message(arduino_port, False)
                 except serial.SerialTimeoutException:
                     print("Timeout: No confirmation received")
         except serial.SerialException as e:
@@ -176,6 +219,7 @@ def main():
             break
         # time.sleep(60)
 
-
+#TODO: Olhar com mais detalhes a troca de ack após receber o beacon
+#TODO: posso usar paralelismo?
 if __name__ == "__main__":
     main()

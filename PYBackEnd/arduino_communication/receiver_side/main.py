@@ -37,7 +37,9 @@ def send_beacon(arduino_port):
 
                 # Esperando confirmação do Arduino
                 try:
-                    while b"No confirmation received" not in response and b"ACK" not in response:
+                    # while b"No confirmation received" not in response and b"ACK" not in response:
+                    #     response += ser.read(ser.in_waiting or 1)
+                    while True:
                         response += ser.read(ser.in_waiting or 1)
                     print("Waiting for ACK")
                     if b"No confirmation received" in response:
@@ -73,13 +75,13 @@ def receive_and_store_message(arduino_port, use_my_sql=False):
                         if header_index == -1:
                             # Se não encontrar o cabeçalho, limpe o buffer para evitar dados antigos
                             buffer = b''
+                            continue
                         elif header_index > 0:
                             # Se encontrar o cabeçalho mas não estiver no início, remova bytes anteriores
                             buffer = buffer[header_index:]
                         if len(buffer) >= message_len:
                             response = buffer[:message_len]
-
-                        print("Received message from Arduino:", ' '.join(format(x, '02X') for x in response))
+                            print("Received message from Arduino:", ' '.join(format(x, '02X') for x in response))
 
                         if response[:2] == b'\xFF\xFF':
                             print(response)

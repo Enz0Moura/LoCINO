@@ -13,11 +13,26 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 BEACONLEN = 10
 message_len = 21
 
+
+def send_command(arduino_port, command):
+    print(f"Enviando comando: {command}")
+    with serial.Serial(arduino_port, 9600, timeout=5) as ser:
+        response = ser.read_until(b"Sistema iniciado. Aguardando comandos.\r\n")
+        print(f"Resposta inicial do Arduino: {response.decode('utf-8').strip()}")
+
+        ser.write((command + '\n').encode())
+
+        time.sleep(0.5)
+        response = ser.read_all().decode('utf-8').strip()
+        print(f"Resposta do Arduino: {response}")
+
+    print(f"Resposta do Arduino: {response}")
+
 def receive_and_store_message(arduino_port, use_my_sql=False):
     global message_len
     if arduino_port:
         print(f"Arduino found on port: {arduino_port}")
-
+        send_command(arduino_port, 'wr')
         with serial.Serial(arduino_port, 9600, timeout=5) as ser:
             buffer = b''
             while True:
@@ -36,23 +51,23 @@ def receive_and_store_message(arduino_port, use_my_sql=False):
                             response = buffer[:message_len]
                             print("Received message from Arduino:", ' '.join(format(x, '02X') for x in response))
 
-                        if response[:2] == b'\xFF\xFF':
-                            print(response)
-                            message = response[2:(message_len - 2)]
-                            received_checksum = response[(message_len - 2):message_len]
-                            parsed_data = MessageModel.parse(message)
-                            print(f"Deserialized message:{parsed_data}\nCheck Sum: {received_checksum}")
-                            success = False if not MessageModel.vef_checksum(message, received_checksum) else True
-                            print(
-                                f"{'Error' if not success else 'Success'} handling message. Checksum {'differs.' if not success else 'is equal.'}")
+                            if response[:2] == b'\xFF\xFF':
+                                print(response)
+                                message = response[2:(message_len - 2)]
+                                received_checksum = response[(message_len - 2):message_len]
+                                parsed_data = MessageModel.parse(message)
+                                print(f"Deserialized message:{parsed_data}\nCheck Sum: {received_checksum}")
+                                success = False if not MessageModel.vef_checksum(message, received_checksum) else True
+                                print(
+                                    f"{'Error' if not success else 'Success'} handling message. Checksum {'differs.' if not success else 'is equal.'}")
 
-                            store_message(parsed_data, success, use_my_sql)
-                            return 1
-                        else:
-                            print("Incorrect Header, ignoring message:",
-                                  ' '.join(format(x, '02X') for x in response))
-                            store_message(None, False, use_my_sql)
-                            return 1
+                                store_message(parsed_data, success, use_my_sql)
+                                return 1
+                            else:
+                                print("Incorrect Header, ignoring message:",
+                                      ' '.join(format(x, '02X') for x in response))
+                                store_message(None, False, use_my_sql)
+                                return 1
 
             else:
                 return 0
@@ -138,7 +153,7 @@ def send_message(arduino_port, message):
         check_sum = MessageModel.generate_checksum(serialized_message)
         message_with_header = header + serialized_message + check_sum
         print(f"Message with header len: {len(message_with_header)} bytes")
-
+        send_command(arduino_port, 'wm')
         try:
             # Envia a mensagem serializada via porta serial
             with serial.Serial(arduino_port, 9600, timeout=2) as ser:

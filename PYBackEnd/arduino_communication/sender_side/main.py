@@ -8,6 +8,7 @@ from arduino_communication.receiver_side.main import receive_and_store_message
 from arduino_communication.utils import find_arduino_port
 from message.model import Message as MessageModel
 from message.schemas import Message as MessageSchema
+from arduino_communication.receiver_side.main import send_command
 from beacon.model import Beacon as BeaconModel
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -86,7 +87,7 @@ def send_message(arduino_port, message):
             raise Exception(f"Error on creating or serializing message: {e}")
 
         print(f"Message len: {len(serialized_message)} bytes")
-
+        send_command(arduino_port, 'wm')
         # Header para facilitar a identificação
         header = b'\xFF\xFF'
         check_sum = MessageModel.generate_checksum(serialized_message)

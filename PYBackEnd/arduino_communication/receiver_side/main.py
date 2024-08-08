@@ -275,5 +275,6 @@ def main():
 
 #TODO: Olhar com mais detalhes a troca de ack após receber o beacon
 #TODO: posso usar paralelismo?
+#TODO: tudo funciona certo menos o retorno do beacon.
 if __name__ == "__main__":
     main()

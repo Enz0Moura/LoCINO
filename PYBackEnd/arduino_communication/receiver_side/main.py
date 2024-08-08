@@ -41,12 +41,12 @@ def receive_and_store_message(arduino_port):
                                 success = False if not MessageModel.vef_checksum(message, received_checksum) else True
                                 print(f"{'Error' if not success else 'Success'} handling message. Checksum {'differs.' if not success else 'is equal.'}")
 
-                                store_message(parsed_data, success, use_my_sql=True)
+                                store_message(parsed_data, success, use_my_sql=False)
                                 return
                             else:
                                 print("Incorrect Header, ignoring message:",
                                       ' '.join(format(x, '02X') for x in response))
-                                store_message(None, False, use_my_sql=True)
+                                store_message(None, False, use_my_sql=False)
                                 return
     else:
         print("Arduino not found")
@@ -54,7 +54,8 @@ def receive_and_store_message(arduino_port):
 
 def main():
     arduino_port = find_arduino_port()
-    receive_and_store_message(arduino_port)
+    while True:
+        receive_and_store_message(arduino_port)
 
 
 if __name__ == "__main__":

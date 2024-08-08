@@ -80,26 +80,81 @@ def send_message(arduino_port, message):
 # Function test
 def main():
     arduino_port = find_arduino_port()
-    message = MessageSchema(
+    start_time = datetime.now()
+    end_time = start_time + timedelta(hours=5)
+    coordinates = [
+        (-22.5118074, -43.1788471),
+        (-22.5099877, -43.1753572),
+        (-22.5087312, -43.1723941),
+        (-22.5071419, -43.1694926)
+    ]
+    coordinate_index = 0
+
+    memory = [MessageSchema(
         message_type=True,
-        id=1,
-        latitude=50.1234,
-        longitude=8.1234,
+        id=2,
+        latitude=-22.509997449415415,
+        longitude=-43.18229837292253,
         group_flag=False,
-        record_time=int(time.time()),
+        record_time=int(time.time() - ((1 * 60 * 60) + (5 * 60))),
         max_records=255,
         hop_count=15,
         channel=3,
         location_time=0,
         help_flag=2,
-        battery=3
-    )
+        battery=3),
+        MessageSchema(
+            message_type=True,
+            id=2,
+            latitude=-22.510304703568117,
+            longitude=-43.184186648149826,
+            group_flag=False,
+            record_time=int(time.time() - (1 * 60 * 60)),
+            max_records=255,
+            hop_count=15,
+            channel=3,
+            location_time=0,
+            help_flag=2,
+            battery=3)
+    ]
 
-    start_time = datetime.now()
-    end_time = start_time + timedelta(hours=5)
-    while datetime.now() < end_time:
-        send_message(arduino_port, message)
-        time.sleep(60)
+    while True:
+        user_input = "1" #input("Send message?\n")
+        if user_input == "1":
+            lat, long = coordinates[coordinate_index]
+            message = MessageSchema(
+                message_type=True,
+                id=1,
+                latitude=lat,
+                longitude=long,
+                group_flag=False,
+                record_time=int(time.time()),
+                max_records=255,
+                hop_count=15,
+                channel=3,
+                location_time=0,
+                help_flag=2,
+                battery=3
+            )
+            # if len(memory) > 0:
+            #     for message in memory:
+            #         send_message(arduino_port, message)
+            #         memory.remove(message)
+            send_message(arduino_port, message)
+            coordinate_index = (coordinate_index + 1) % len(coordinates)
+
+            # if listen_beacon(arduino_port):
+            #     send_message(arduino_port, message)
+            #     response = 0
+            #     while response == 0:
+            #         response = receive_and_store_message(arduino_port, True)
+            # elif send_beacon(arduino_port):
+            # if send_beacon(arduino_port):
+            #     receive_and_store_message(arduino_port, False)
+            #     send_message(arduino_port, message)
+        if user_input == '3':
+            break
+        # time.sleep(60)
 
 
 

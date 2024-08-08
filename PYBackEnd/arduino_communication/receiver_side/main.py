@@ -4,15 +4,14 @@ import time
 from datetime import datetime, timedelta
 
 import serial
-from arduino_communication.receiver_side.main import receive_and_store_message
-from arduino_communication.utils import find_arduino_port
+from arduino_communication.utils import find_arduino_port, store_message
 from message.model import Message as MessageModel
 from message.schemas import Message as MessageSchema
 from beacon.model import Beacon as BeaconModel
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 BEACONLEN = 10
-
+message_len = 21
 
 def receive_and_store_message(arduino_port, use_my_sql=False):
     global message_len

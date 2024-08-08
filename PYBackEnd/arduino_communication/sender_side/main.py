@@ -87,7 +87,6 @@ def send_message(arduino_port, message):
             raise Exception(f"Error on creating or serializing message: {e}")
 
         print(f"Message len: {len(serialized_message)} bytes")
-        send_command(arduino_port, 'wm')
         # Header para facilitar a identificação
         header = b'\xFF\xFF'
         check_sum = MessageModel.generate_checksum(serialized_message)

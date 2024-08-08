@@ -32,7 +32,6 @@ def receive_and_store_message(arduino_port, use_my_sql=False):
     global message_len
     if arduino_port:
         print(f"Arduino found on port: {arduino_port}")
-        send_command(arduino_port, 'wr')
         with serial.Serial(arduino_port, 9600, timeout=5) as ser:
             buffer = b''
             while True:

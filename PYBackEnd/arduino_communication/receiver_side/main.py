@@ -152,7 +152,6 @@ def send_message(arduino_port, message):
         check_sum = MessageModel.generate_checksum(serialized_message)
         message_with_header = header + serialized_message + check_sum
         print(f"Message with header len: {len(message_with_header)} bytes")
-        send_command(arduino_port, 'wm')
         try:
             # Envia a mensagem serializada via porta serial
             with serial.Serial(arduino_port, 9600, timeout=2) as ser:
@@ -267,6 +266,7 @@ def main():
                 battery=3
             )
             receive_and_store_message(arduino_port)
+            time.sleep(5)
             send_message(arduino_port, message)
             coordinate_index = (coordinate_index + 1) % len(coordinates)
         if user_input == '3':

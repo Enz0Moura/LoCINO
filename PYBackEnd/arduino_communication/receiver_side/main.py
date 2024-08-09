@@ -32,7 +32,7 @@ def receive_and_store_message(arduino_port, use_my_sql=False):
         with serial.Serial(arduino_port, 9600, timeout=5) as ser:
             buffer = b''
             response = ser.read_until(b"Sistema iniciado. Aguardando comandos.\r\n")
-            ser.write(('M' + '\n').encode())
+            ser.write(('B' + '\n').encode())
             while True:
                 if ser.in_waiting > 0:
                     buffer += ser.read(ser.in_waiting)
@@ -248,8 +248,8 @@ def main():
             send_message(arduino_port, message)
             coordinate_index = (coordinate_index + 1) % len(coordinates)
         elif user_input == "2":
-            send_command(arduino_port, 'B')  # Command to wait for beacon
-            send_beacon(arduino_port)
+            #send_beacon(arduino_port)
+            receive_and_store_message(arduino_port)
         elif user_input == '3':
             break
         else:

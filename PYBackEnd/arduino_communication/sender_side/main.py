@@ -207,6 +207,7 @@ def main():
                 battery=3
             )
             send_message(arduino_port, message)
+            time.sleep(5)
             receive_and_store_message(arduino_port)
             coordinate_index = (coordinate_index + 1) % len(coordinates)
         if user_input == '3':

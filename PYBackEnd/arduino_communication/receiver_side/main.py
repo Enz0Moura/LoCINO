@@ -83,19 +83,19 @@ def send_beacon(arduino_port):
         try:
             with serial.Serial(arduino_port, 9600, timeout=2) as ser:
                 ser.read_until(b"Sistema iniciado. Aguardando comandos.\r\n")
-                ser.write(('M' + '\n').encode())
+                ser.write('B'.encode())
                 ser.write(beacon_with_header)
                 print("Beacon sent: ", beacon_with_header)
 
                 response = b''
                 while True:
                     response += ser.read(ser.in_waiting or 1)
-                    if b"ACK" in response:
+                    if b"ACK Received." in response:
                         print("Confirmation received: handshake started")
-                        return 1
-                    elif b"No confirmation received" in response:
+                        return True
+                    elif b"Timeout waiting for beacon, restarting..." in response:
                         print("No confirmation received")
-                        return None
+                        return False
         except serial.SerialException as e:
             print(f"Serial communication error: {e}")
     else:
@@ -134,7 +134,7 @@ def send_message(arduino_port, message):
         try:
             with serial.Serial(arduino_port, 9600, timeout=2) as ser:
                 response = ser.read_until(b"Sistema iniciado. Aguardando comandos.\r\n")
-                ser.write('M'.encode())
+                ser.write('R'.encode())
                 while True:
                     ready_message = ser.readline().decode('utf-8', errors='ignore').strip()
                     if ready_message == "READY":
@@ -165,6 +165,7 @@ def listen_beacon(arduino_port):
 
         try:
             with serial.Serial(arduino_port, 9600, timeout=5) as ser:
+                ser.read_until(b"Sistema iniciado. Aguardando comandos.\r\n")
                 buffer = b''
                 while True:
                     if ser.in_waiting > 0:
@@ -173,11 +174,12 @@ def listen_beacon(arduino_port):
                         print(buffer)
 
                         if b"Beacon Received" in buffer:
-                            return 1
-
+                            return True
+                        if b"Beacon listening timeout" in buffer:
+                            return False
                         if len(buffer) > 1000:
                             buffer = buffer[-1000:]
-            return None
+
         except serial.SerialException as e:
             print(f"Serial communication error: {e}")
     else:
@@ -244,12 +246,15 @@ def main():
         # send_command(arduino_port, 'M')  # Command to wait for message
         # receive_and_store_message(arduino_port)
         # time.sleep(5)
-        receive_and_store_message(arduino_port)
-        time.sleep(15)
-        send_message(arduino_port, message)
-        coordinate_index = (coordinate_index + 1) % len(coordinates)
-
-
+        # if send_beacon(arduino_port):
+        #     receive_and_store_message(arduino_port)
+        #     time.sleep(5)
+        #     send_message(arduino_port, message)
+        #     coordinate_index = (coordinate_index + 1) % len(coordinates)
+        if listen_beacon(arduino_port):
+            send_message(arduino_port, message)
+            time.sleep(2)
+            receive_and_store_message(arduino_port)
         # elif user_input == "2":
         #     #send_beacon(arduino_port)
         #     receive_and_store_message(arduino_port)

@@ -225,35 +225,38 @@ def main():
     ]
 
     while True:
-        user_input = input("Send message or beacon? (1 for message, 2 for beacon, 3 to exit)\n")
-        if user_input == "1":
-            lat, long = coordinates[coordinate_index]
-            message = MessageSchema(
-                type=True,
-                id=1,
-                latitude=lat,
-                longitude=long,
-                group_flag=False,
-                record_time=int(time.time()),
-                max_records=255,
-                hop_count=15,
-                channel=3,
-                location_time=0,
-                help_flag=2,
-                battery=3
-            )
-            # send_command(arduino_port, 'M')  # Command to wait for message
-            # receive_and_store_message(arduino_port)
-            # time.sleep(5)
-            send_message(arduino_port, message)
-            coordinate_index = (coordinate_index + 1) % len(coordinates)
-        elif user_input == "2":
-            #send_beacon(arduino_port)
-            receive_and_store_message(arduino_port)
-        elif user_input == '3':
-            break
-        else:
-            print("Invalid input")
+        # user_input = input("Send message or beacon? (1 for message, 2 for beacon, 3 to exit)\n")
+        lat, long = coordinates[coordinate_index]
+        message = MessageSchema(
+            type=True,
+            id=1,
+            latitude=lat,
+            longitude=long,
+            group_flag=False,
+            record_time=int(time.time()),
+            max_records=255,
+            hop_count=15,
+            channel=3,
+            location_time=0,
+            help_flag=2,
+            battery=3
+        )
+        # send_command(arduino_port, 'M')  # Command to wait for message
+        # receive_and_store_message(arduino_port)
+        # time.sleep(5)
+        receive_and_store_message(arduino_port)
+        time.sleep(15)
+        send_message(arduino_port, message)
+        coordinate_index = (coordinate_index + 1) % len(coordinates)
+
+
+        # elif user_input == "2":
+        #     #send_beacon(arduino_port)
+        #     receive_and_store_message(arduino_port)
+        # elif user_input == '3':
+        #     break
+        # else:
+        #     print("Invalid input")
 
 if __name__ == "__main__":
     main()

@@ -166,16 +166,18 @@ def listen_beacon(arduino_port):
         try:
             with serial.Serial(arduino_port, 9600, timeout=5) as ser:
                 ser.read_until(b"Sistema iniciado. Aguardando comandos.\r\n")
+                ser.write('L'.encode())
                 buffer = b''
                 while True:
                     if ser.in_waiting > 0:
                         data = ser.read(ser.in_waiting)
                         buffer += data
-                        print(buffer)
-
                         if b"Beacon Received" in buffer:
+                            print("Received beacon")
                             return True
+
                         if b"Beacon listening timeout" in buffer:
+                            print("No beacon received")
                             return False
                         if len(buffer) > 1000:
                             buffer = buffer[-1000:]

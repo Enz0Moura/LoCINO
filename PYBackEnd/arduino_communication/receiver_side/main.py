@@ -255,6 +255,7 @@ def main():
         #     send_message(arduino_port, message)
         #     coordinate_index = (coordinate_index + 1) % len(coordinates)
         if listen_beacon(arduino_port):
+            time.sleep(4)
             send_message(arduino_port, message)
             time.sleep(2)
             receive_and_store_message(arduino_port)

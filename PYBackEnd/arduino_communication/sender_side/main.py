@@ -31,8 +31,8 @@ def receive_and_store_message(arduino_port, use_my_sql=False):
         print(f"Arduino found on port: {arduino_port}")
         with serial.Serial(arduino_port, 9600, timeout=5) as ser:
             buffer = b''
-            response = ser.read_until(b"Sistema iniciado. Aguardando comandos.\r\n")
-            ser.write(('B' + '\n').encode())
+            ser.read_until(b"Sistema iniciado. Aguardando comandos.\r\n")
+            ser.write(('R' + '\n').encode())
             while True:
                 if ser.in_waiting > 0:
                     buffer += ser.read(ser.in_waiting)
@@ -133,8 +133,8 @@ def send_message(arduino_port, message):
 
         try:
             with serial.Serial(arduino_port, 9600, timeout=2) as ser:
-                response = ser.read_until(b"Sistema iniciado. Aguardando comandos.\r\n")
-                ser.write('R'.encode())
+                ser.read_until(b"Sistema iniciado. Aguardando comandos.\r\n")
+                ser.write('M'.encode())
                 while True:
                     ready_message = ser.readline().decode('utf-8', errors='ignore').strip()
                     if ready_message == "READY":

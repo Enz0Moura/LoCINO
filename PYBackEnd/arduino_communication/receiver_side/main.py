@@ -172,6 +172,7 @@ def listen_beacon(arduino_port):
                     if ser.in_waiting > 0:
                         data = ser.read(ser.in_waiting)
                         buffer += data
+                        print(buffer)
                         if b"Beacon Received" in buffer:
                             print("Received beacon")
                             return True

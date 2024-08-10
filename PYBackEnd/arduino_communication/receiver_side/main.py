@@ -82,7 +82,7 @@ def send_beacon(arduino_port):
 
         try:
             with serial.Serial(arduino_port, 9600, timeout=2) as ser:
-                response = ser.read_until(b"Sistema iniciado. Aguardando comandos.\r\n")
+                ser.read_until(b"Sistema iniciado. Aguardando comandos.\r\n")
                 ser.write(('M' + '\n').encode())
                 ser.write(beacon_with_header)
                 print("Beacon sent: ", beacon_with_header)

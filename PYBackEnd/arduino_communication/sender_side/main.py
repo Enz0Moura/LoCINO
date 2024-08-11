@@ -13,7 +13,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 
 BEACONLEN = 10
 message_len = 21
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 def receive_and_store_message(arduino_port, use_my_sql=False):
     global message_len
     if arduino_port:

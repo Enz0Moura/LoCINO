@@ -14,18 +14,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 BEACONLEN = 10
 message_len = 21
 logging.basicConfig(level=logging.INFO)
-
-def send_command(arduino_port, command):
-    print(f"Enviando comando: {command}")
-
-    with serial.Serial(arduino_port, 9600, timeout=5) as ser:
-        ser.dtr = False
-        response = ser.read_until(b"Sistema iniciado. Aguardando comandos.\r\n")
-        logging.info(f"Resposta inicial do Arduino: {response.decode('utf-8').strip()}")
-        buffer = b''
-        while True:
-            if ser.in_waiting > 0:
-                buffer += ser.read(ser.in_waiting)
 def receive_and_store_message(arduino_port, use_my_sql=False):
     global message_len
     if arduino_port:
@@ -36,6 +24,9 @@ def receive_and_store_message(arduino_port, use_my_sql=False):
             ser.write(('R' + '\n').encode())
             while True:
                 if ser.in_waiting > 0:
+                    if b"Timeout waiting for record, restarting..." in buffer:
+                        logging.debug("Timeout reached")
+                        return -1
                     buffer += ser.read(ser.in_waiting)
                     while len(buffer) >= message_len:
                         header_index = buffer.find(b'\xFF\xFF')
@@ -46,18 +37,18 @@ def receive_and_store_message(arduino_port, use_my_sql=False):
                             buffer = buffer[header_index:]
                         if len(buffer) >= message_len:
                             response = buffer[:message_len]
-                            logging.info("Received message from Arduino:", ' '.join(format(x, '02X') for x in response))
+                            logging.debug("Received message from Arduino:", ' '.join(format(x, '02X') for x in response))
 
                             if response[:2] == b'\xFF\xFF':
                                 print(response)
                                 message = response[2:(message_len - 2)]
                                 received_checksum = response[(message_len - 2):message_len]
                                 parsed_data = MessageModel.parse(message)
-                                logging.info(f"Deserialized message:{parsed_data}\nCheck Sum: {received_checksum}")
+                                logging.debug(f"Deserialized message:{parsed_data}\nCheck Sum: {received_checksum}")
                                 success = MessageModel.vef_checksum(message, received_checksum)
 
                                 if not success:
-                                    logging.error("Error handling message. Checksum differs.")
+                                    logging.info("Error handling message. Checksum differs.")
                                 else:
                                     logging.info(f"Success handling message. Checksum is equal")
 
@@ -82,7 +73,7 @@ def send_beacon(arduino_port):
         header = b'\xFF\xFF'
         beacon_with_header = header + serialized_beacon
 
-        logging.info(f"Message with header len: {len(beacon_with_header)} bytes")
+        logging.debug(f"Message with header len: {len(beacon_with_header)} bytes")
 
         try:
             with serial.Serial(arduino_port, 9600, timeout=2) as ser:
@@ -101,9 +92,9 @@ def send_beacon(arduino_port):
                         logging.info("No confirmation received")
                         return False
         except serial.SerialException as e:
-            logging.error(f"Serial communication error: {e}")
+            logging.critical(f"Serial communication error: {e}")
     else:
-        logging.error("Arduino not found")
+        logging.critical("Arduino not found")
         return
 
 def send_message(arduino_port, message):
@@ -133,7 +124,7 @@ def send_message(arduino_port, message):
         header = b'\xFF\xFF'
         check_sum = MessageModel.generate_checksum(serialized_message)
         message_with_header = header + serialized_message + check_sum
-        print(f"Message with header len: {len(message_with_header)} bytes")
+        logging.debug(f"Message with header len: {len(message_with_header)} bytes")
 
         try:
             with serial.Serial(arduino_port, 9600, timeout=2) as ser:
@@ -143,11 +134,13 @@ def send_message(arduino_port, message):
                     ready_message = ser.readline().decode('utf-8', errors='ignore').strip()
                     if ready_message == "READY":
                         break
+                    elif ready_message == "Timeout waiting for message, restarting...":
+                        return -1
                     else:
-                        logging.info(f"Waiting READY, received: {ready_message}")
+                        logging.debug(f"Waiting READY, received: {ready_message}")
 
                 ser.write(message_with_header)
-                logging.info("Message sent: ", message_with_header)
+                logging.debug("Message sent: ", message_with_header)
 
                 while True:
                     ack = ser.readline().decode('utf-8', errors='ignore').strip()
@@ -160,7 +153,7 @@ def send_message(arduino_port, message):
         except serial.SerialException as e:
             logging.critical(f"Serial communication error: {e}")
     else:
-        logging.error("Arduino not found")
+        logging.critical("Arduino not found")
 
 def listen_beacon(arduino_port):
     global BEACONLEN
@@ -188,7 +181,7 @@ def listen_beacon(arduino_port):
                             buffer = buffer[-1000:]
 
         except serial.SerialException as e:
-            logging.info(f"Serial communication error: {e}")
+            logging.critical(f"Serial communication error: {e}")
     else:
         logging.critical("Arduino not found")
         return None

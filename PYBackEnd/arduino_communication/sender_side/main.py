@@ -1,19 +1,22 @@
+import logging
 import os
 import sys
 import time
 from datetime import datetime, timedelta
-import logging
+
 import serial
 from arduino_communication.utils import find_arduino_port, store_message
+from beacon.model import Beacon as BeaconModel
 from message.model import Message as MessageModel
 from message.schemas import Message as MessageSchema
-from beacon.model import Beacon as BeaconModel
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 BEACONLEN = 10
 message_len = 21
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
+
+
 def receive_and_store_message(arduino_port, use_my_sql=False):
     global message_len
     if arduino_port:
@@ -37,7 +40,8 @@ def receive_and_store_message(arduino_port, use_my_sql=False):
                             buffer = buffer[header_index:]
                         if len(buffer) >= message_len:
                             response = buffer[:message_len]
-                            logging.debug("Received message from Arduino:", ' '.join(format(x, '02X') for x in response))
+                            logging.debug("Received message from Arduino:",
+                                          ' '.join(format(x, '02X') for x in response))
 
                             if response[:2] == b'\xFF\xFF':
                                 print(response)
@@ -56,9 +60,10 @@ def receive_and_store_message(arduino_port, use_my_sql=False):
                                 return 1
                             else:
                                 logging.warning("Incorrect Header, ignoring message:",
-                                      ' '.join(format(x, '02X') for x in response))
+                                                ' '.join(format(x, '02X') for x in response))
                                 store_message(None, False, use_my_sql)
                                 return 1
+
 
 def send_beacon(arduino_port):
     if arduino_port:
@@ -80,7 +85,7 @@ def send_beacon(arduino_port):
                 ser.read_until(b"Sistema iniciado. Aguardando comandos.\r\n")
                 ser.write('B'.encode())
                 ser.write(beacon_with_header)
-                print("Beacon sent: ", beacon_with_header)
+                logging.debug("Beacon sent: ", beacon_with_header)
 
                 response = b''
                 while True:
@@ -96,6 +101,7 @@ def send_beacon(arduino_port):
     else:
         logging.critical("Arduino not found")
         return
+
 
 def send_message(arduino_port, message):
     if arduino_port:
@@ -149,11 +155,12 @@ def send_message(arduino_port, message):
                         logging.info("Confirmation received: message sent")
                         break
                     else:
-                        logging.info("No confirmation received or incorrect confirmation")
+                        logging.debug("No confirmation received or incorrect confirmation")
         except serial.SerialException as e:
             logging.critical(f"Serial communication error: {e}")
     else:
         logging.critical("Arduino not found")
+
 
 def listen_beacon(arduino_port):
     global BEACONLEN
@@ -185,6 +192,7 @@ def listen_beacon(arduino_port):
     else:
         logging.critical("Arduino not found")
         return None
+
 
 def main():
     arduino_port = find_arduino_port()
@@ -287,5 +295,7 @@ def main():
                 coordinate_index = (coordinate_index + 1) % len(coordinates)
     else:
         exit()
+
+
 if __name__ == "__main__":
     main()

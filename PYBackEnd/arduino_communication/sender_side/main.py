@@ -165,19 +165,24 @@ def listen_beacon(arduino_port):
 
         try:
             with serial.Serial(arduino_port, 9600, timeout=5) as ser:
+                ser.read_until(b"Sistema iniciado. Aguardando comandos.\r\n")
+                ser.write('L'.encode())
                 buffer = b''
                 while True:
                     if ser.in_waiting > 0:
                         data = ser.read(ser.in_waiting)
                         buffer += data
                         print(buffer)
-
                         if b"Beacon Received" in buffer:
-                            return 1
+                            print("Received beacon")
+                            return True
 
+                        if b"Beacon listening timeout" in buffer:
+                            print("No beacon received")
+                            return False
                         if len(buffer) > 1000:
                             buffer = buffer[-1000:]
-            return None
+
         except serial.SerialException as e:
             print(f"Serial communication error: {e}")
     else:
@@ -241,21 +246,18 @@ def main():
             help_flag=2,
             battery=3
         )
-        # send_command(arduino_port, 'M')  # Command to wait for message
-        # receive_and_store_message(arduino_port)
-        # time.sleep(5)
         if send_beacon(arduino_port):
             receive_and_store_message(arduino_port)
             time.sleep(5)
             send_message(arduino_port, message)
             coordinate_index = (coordinate_index + 1) % len(coordinates)
-        # elif user_input == "2":
-        #     #send_beacon(arduino_port)
-        #     receive_and_store_message(arduino_port)
-        # elif user_input == '3':
-        #     break
-        # else:
-        #     print("Invalid input")
+
+        if listen_beacon(arduino_port):
+            time.sleep(4)
+            send_message(arduino_port, message)
+            coordinate_index = (coordinate_index + 1) % len(coordinates)
+            time.sleep(2)
+            receive_and_store_message(arduino_port)
 
 if __name__ == "__main__":
     main()

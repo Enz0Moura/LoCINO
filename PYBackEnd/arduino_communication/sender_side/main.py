@@ -2,7 +2,7 @@ import os
 import sys
 import time
 from datetime import datetime, timedelta
-
+import logging
 import serial
 from arduino_communication.utils import find_arduino_port, store_message
 from message.model import Message as MessageModel
@@ -13,6 +13,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 
 BEACONLEN = 10
 message_len = 21
+logging.basicConfig(level=logging.INFO)
 
 def send_command(arduino_port, command):
     print(f"Enviando comando: {command}")
@@ -20,7 +21,7 @@ def send_command(arduino_port, command):
     with serial.Serial(arduino_port, 9600, timeout=5) as ser:
         ser.dtr = False
         response = ser.read_until(b"Sistema iniciado. Aguardando comandos.\r\n")
-        print(f"Resposta inicial do Arduino: {response.decode('utf-8').strip()}")
+        logging.info(f"Resposta inicial do Arduino: {response.decode('utf-8').strip()}")
         buffer = b''
         while True:
             if ser.in_waiting > 0:
@@ -45,22 +46,25 @@ def receive_and_store_message(arduino_port, use_my_sql=False):
                             buffer = buffer[header_index:]
                         if len(buffer) >= message_len:
                             response = buffer[:message_len]
-                            print("Received message from Arduino:", ' '.join(format(x, '02X') for x in response))
+                            logging.info("Received message from Arduino:", ' '.join(format(x, '02X') for x in response))
 
                             if response[:2] == b'\xFF\xFF':
                                 print(response)
                                 message = response[2:(message_len - 2)]
                                 received_checksum = response[(message_len - 2):message_len]
                                 parsed_data = MessageModel.parse(message)
-                                print(f"Deserialized message:{parsed_data}\nCheck Sum: {received_checksum}")
+                                logging.info(f"Deserialized message:{parsed_data}\nCheck Sum: {received_checksum}")
                                 success = MessageModel.vef_checksum(message, received_checksum)
-                                print(
-                                    f"{'Error' if not success else 'Success'} handling message. Checksum {'differs.' if not success else 'is equal.'}")
+
+                                if not success:
+                                    logging.error("Error handling message. Checksum differs.")
+                                else:
+                                    logging.info(f"Success handling message. Checksum is equal")
 
                                 store_message(parsed_data, success, use_my_sql)
                                 return 1
                             else:
-                                print("Incorrect Header, ignoring message:",
+                                logging.warning("Incorrect Header, ignoring message:",
                                       ' '.join(format(x, '02X') for x in response))
                                 store_message(None, False, use_my_sql)
                                 return 1
@@ -72,13 +76,13 @@ def send_beacon(arduino_port):
             beacon = BeaconModel(type=3, id=2, latitude=55.55, longitude=-77.77)
             serialized_beacon = beacon.build()
         except Exception as e:
-            print(f"Error on creating or serializing message: {e}")
+            logging.critical(f"Error on creating or serializing message: {e}")
             return
 
         header = b'\xFF\xFF'
         beacon_with_header = header + serialized_beacon
 
-        print(f"Message with header len: {len(beacon_with_header)} bytes")
+        logging.info(f"Message with header len: {len(beacon_with_header)} bytes")
 
         try:
             with serial.Serial(arduino_port, 9600, timeout=2) as ser:
@@ -91,15 +95,15 @@ def send_beacon(arduino_port):
                 while True:
                     response += ser.read(ser.in_waiting or 1)
                     if b"ACK Received." in response:
-                        print("Confirmation received: handshake started")
+                        logging.info("Confirmation received: handshake started")
                         return True
                     elif b"Timeout waiting for beacon, restarting..." in response:
-                        print("No confirmation received")
+                        logging.info("No confirmation received")
                         return False
         except serial.SerialException as e:
-            print(f"Serial communication error: {e}")
+            logging.error(f"Serial communication error: {e}")
     else:
-        print("Arduino not found")
+        logging.error("Arduino not found")
         return
 
 def send_message(arduino_port, message):
@@ -123,7 +127,7 @@ def send_message(arduino_port, message):
             )
             serialized_message = msg.build()
         except Exception as e:
-            print(f"Error on creating or serializing message: {e}")
+            logging.critical(f"Error on creating or serializing message: {e}")
             return
 
         header = b'\xFF\xFF'
@@ -140,23 +144,23 @@ def send_message(arduino_port, message):
                     if ready_message == "READY":
                         break
                     else:
-                        print(f"Waiting READY, received: {ready_message}")
+                        logging.info(f"Waiting READY, received: {ready_message}")
 
                 ser.write(message_with_header)
-                print("Message sent: ", message_with_header)
+                logging.info("Message sent: ", message_with_header)
 
                 while True:
                     ack = ser.readline().decode('utf-8', errors='ignore').strip()
-                    print(f"Received: {ack}")
+                    logging.debug(f"Received: {ack}")
                     if "ACK" in ack:
-                        print("Confirmation received: message sent")
+                        logging.info("Confirmation received: message sent")
                         break
                     else:
-                        print("No confirmation received or incorrect confirmation")
+                        logging.info("No confirmation received or incorrect confirmation")
         except serial.SerialException as e:
-            print(f"Serial communication error: {e}")
+            logging.critical(f"Serial communication error: {e}")
     else:
-        print("Arduino not found")
+        logging.error("Arduino not found")
 
 def listen_beacon(arduino_port):
     global BEACONLEN
@@ -174,19 +178,19 @@ def listen_beacon(arduino_port):
                         buffer += data
                         print(buffer)
                         if b"Beacon Received" in buffer:
-                            print("Received beacon")
+                            logging.info("Received beacon")
                             return True
 
                         if b"Beacon listening timeout" in buffer:
-                            print("No beacon received")
+                            logging.info("No beacon received")
                             return False
                         if len(buffer) > 1000:
                             buffer = buffer[-1000:]
 
         except serial.SerialException as e:
-            print(f"Serial communication error: {e}")
+            logging.info(f"Serial communication error: {e}")
     else:
-        print("Arduino not found")
+        logging.critical("Arduino not found")
         return None
 
 def main():
@@ -228,36 +232,67 @@ def main():
             help_flag=2,
             battery=3)
     ]
+    user_input = input("Start sending beacon or listening? (1 for sending, 2 for listening, 3 to exit)\n")
+    if user_input == "1":
+        while True:
+            lat, long = coordinates[coordinate_index]
+            message = MessageSchema(
+                type=True,
+                id=1,
+                latitude=lat,
+                longitude=long,
+                group_flag=False,
+                record_time=int(time.time()),
+                max_records=255,
+                hop_count=15,
+                channel=3,
+                location_time=0,
+                help_flag=2,
+                battery=3
+            )
+            if send_beacon(arduino_port):
+                receive_and_store_message(arduino_port)
+                time.sleep(5)
+                send_message(arduino_port, message)
+                coordinate_index = (coordinate_index + 1) % len(coordinates)
 
-    while True:
-        # user_input = input("Send message or beacon? (1 for message, 2 for beacon, 3 to exit)\n")
-        lat, long = coordinates[coordinate_index]
-        message = MessageSchema(
-            type=True,
-            id=1,
-            latitude=lat,
-            longitude=long,
-            group_flag=False,
-            record_time=int(time.time()),
-            max_records=255,
-            hop_count=15,
-            channel=3,
-            location_time=0,
-            help_flag=2,
-            battery=3
-        )
-        if send_beacon(arduino_port):
-            receive_and_store_message(arduino_port)
-            time.sleep(5)
-            send_message(arduino_port, message)
-            coordinate_index = (coordinate_index + 1) % len(coordinates)
+            if listen_beacon(arduino_port):
+                time.sleep(4)
+                send_message(arduino_port, message)
+                coordinate_index = (coordinate_index + 1) % len(coordinates)
+                time.sleep(2)
+                receive_and_store_message(arduino_port)
+    elif user_input == "2":
+        while True:
+            #
+            lat, long = coordinates[coordinate_index]
+            message = MessageSchema(
+                type=True,
+                id=1,
+                latitude=lat,
+                longitude=long,
+                group_flag=False,
+                record_time=int(time.time()),
+                max_records=255,
+                hop_count=15,
+                channel=3,
+                location_time=0,
+                help_flag=2,
+                battery=3
+            )
+            if listen_beacon(arduino_port):
+                time.sleep(4)
+                send_message(arduino_port, message)
+                coordinate_index = (coordinate_index + 1) % len(coordinates)
+                time.sleep(2)
+                receive_and_store_message(arduino_port)
 
-        if listen_beacon(arduino_port):
-            time.sleep(4)
-            send_message(arduino_port, message)
-            coordinate_index = (coordinate_index + 1) % len(coordinates)
-            time.sleep(2)
-            receive_and_store_message(arduino_port)
-
+            if send_beacon(arduino_port):
+                receive_and_store_message(arduino_port)
+                time.sleep(5)
+                send_message(arduino_port, message)
+                coordinate_index = (coordinate_index + 1) % len(coordinates)
+    else:
+        exit()
 if __name__ == "__main__":
     main()

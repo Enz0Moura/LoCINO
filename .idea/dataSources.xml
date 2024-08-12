@@ -23,5 +23,12 @@
       <jdbc-url>jdbc:mysql://192.168.1.17:3306/colaborative_local</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="Teste de campo 08-08-2024" uuid="287d256a-8ab5-4ace-84da-d91af03dc8ec">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:$USER_HOME$/Documents/Pibic/Testes_de_campo/08-08-2024/locino.sqlite</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>

@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 
 class Message(BaseModel):
-    message_type: bool
+    type: bool
     id: int
     latitude: float
     longitude: float

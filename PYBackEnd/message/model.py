@@ -4,7 +4,7 @@ class Message:
     __slots__ = ["data"]
 
     _message_bits_schema = BitStruct(
-        "message_type" / Flag,
+        "type" / Flag,
         "id" / BitsInteger(16),
         "latitude" / BitsInteger(24),
         "longitude" / BitsInteger(24),
@@ -56,6 +56,14 @@ class Message:
         return self._build(self.data)
 
     @classmethod
+    def cord_to_24bit(cls, value, range_min, range_max, bits=24):
+        return cls.__cord_to_24bit(value, range_min, range_max, bits)
+
+    @classmethod
+    def cord_from_24bit(cls, value, range_min, range_max, bits=24):
+        return cls.__cord_from_24bit(value, range_min, range_max, bits)
+
+    @classmethod
     def _build(cls, data):
         return cls._message_bits_schema.build(data)
 
@@ -72,9 +80,9 @@ class Message:
     def parse(cls, data):
         parsed_data = cls._message_bits_schema.parse(data)
         if 'latitude' in parsed_data:
-            parsed_data['latitude'] = Message.__cord_from_24bit(parsed_data['latitude'], -90, 90)
+            parsed_data['latitude'] = Message.cord_from_24bit(parsed_data['latitude'], -90, 90)
         if 'longitude' in parsed_data:
-            parsed_data['longitude'] = Message.__cord_from_24bit(parsed_data['longitude'], -180, 180)
+            parsed_data['longitude'] = Message.cord_from_24bit(parsed_data['longitude'], -180, 180)
         data = dict(parsed_data)
         data.pop('_io', None)
         return data

@@ -2,7 +2,6 @@ import logging
 import os
 import sys
 import time
-from datetime import datetime, timedelta
 
 import serial
 from arduino_communication.utils import find_arduino_port, store_message
@@ -14,7 +13,15 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 
 BEACONLEN = 10
 message_len = 21
-logging.basicConfig(level=logging.INFO)
+
+if not os.path.exists("storage"):
+    os.mkdir("storage")
+
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S', handlers=[
+        logging.FileHandler(os.path.join('storage','app.log')),
+        logging.StreamHandler()
+    ], level=logging.INFO)
 
 
 def receive_and_store_message(arduino_port, use_my_sql=False):

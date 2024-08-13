@@ -208,7 +208,7 @@ def main():
         coordinates = coordinates
     elif user_input.lower() == "i":
         coordinates = coordinates[::-1]
-    print(f"Coordinates: {coordinates}")
+    logging.debug(f"Coordinates: {coordinates}")
     coordinate_index = 0
 
     memory = [MessageSchema(

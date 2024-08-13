@@ -196,12 +196,19 @@ def listen_beacon(arduino_port):
 
 def main():
     arduino_port = find_arduino_port()
+    user_input = input("Use normal coordinates or inverted ones? (n for normal, i for inverted)\n")
     coordinates = [
         (-22.5118074, -43.1788471),
         (-22.5099877, -43.1753572),
         (-22.5087312, -43.1723941),
         (-22.5071419, -43.1694926)
     ]
+
+    if user_input.lower() == "n":
+        coordinates = coordinates
+    elif user_input.lower() == "i":
+        coordinates = coordinates[::-1]
+    print(f"Coordinates: {coordinates}")
     coordinate_index = 0
 
     memory = [MessageSchema(

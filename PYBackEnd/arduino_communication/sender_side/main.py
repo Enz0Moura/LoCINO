@@ -19,7 +19,7 @@ if not os.path.exists("storage"):
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S', handlers=[
-        logging.FileHandler(os.path.join('storage','app.log')),
+        logging.FileHandler(os.path.join('storage', 'app.log')),
         logging.StreamHandler()
     ], level=logging.INFO)
 
@@ -210,11 +210,11 @@ def main():
         (-22.5087312, -43.1723941),
         (-22.5071419, -43.1694926)
     ]
-
     if user_input.lower() == "n":
         coordinates = coordinates
     elif user_input.lower() == "i":
         coordinates = coordinates[::-1]
+
     logging.debug(f"Coordinates: {coordinates}")
     coordinate_index = 0
 
@@ -296,33 +296,73 @@ def main():
                 receive_and_store_message(arduino_port)
         elif user_input == "3":
             while True:
-                lat, long = coordinates[coordinate_index]
-                message = MessageSchema(
-                    type=True,
-                    id=1,
-                    latitude=lat,
-                    longitude=long,
-                    group_flag=False,
-                    record_time=int(time.time()),
-                    max_records=255,
-                    hop_count=15,
-                    channel=3,
-                    location_time=0,
-                    help_flag=2,
-                    battery=3
-                )
-                if send_beacon(arduino_port):
-                    receive_and_store_message(arduino_port)
-                    time.sleep(5)
-                    send_message(arduino_port, message)
-                    coordinate_index = (coordinate_index + 1) % len(coordinates)
+                user_coordinate = int(input(f"Choose a coordinate between the range {len(coordinates) - 1}:\n "))
+                if user_coordinate < 0 or user_coordinate > len(coordinates):
+                    logging.warning("Coordinate out of range")
+                else:
+                    break
+            logging.info(f"Chosen coordinates: {coordinates[user_coordinate]}")
+            user_routine = input(
+                "Start sending beacon or receiving beacon? (1 for sending, 2 for receiving, 3 for full routine, 4 to exit)\n")
+            if user_routine.lower() == "1":
+                while True:
+                    lat, long = coordinates[user_coordinate]
+                    message = MessageSchema(
+                        type=True,
+                        id=1,
+                        latitude=lat,
+                        longitude=long,
+                        group_flag=False,
+                        record_time=int(time.time()),
+                        max_records=255,
+                        hop_count=15,
+                        channel=3,
+                        location_time=0,
+                        help_flag=2,
+                        battery=3
+                    )
+                    if send_beacon(arduino_port):
+                        receive_and_store_message(arduino_port)
+                        time.sleep(5)
+                        send_message(arduino_port, message)
 
-                if listen_beacon(arduino_port):
-                    time.sleep(4)
-                    send_message(arduino_port, message)
-                    coordinate_index = (coordinate_index + 1) % len(coordinates)
-                    time.sleep(2)
-                    receive_and_store_message(arduino_port)
+                    if listen_beacon(arduino_port):
+                        time.sleep(4)
+                        send_message(arduino_port, message)
+                        time.sleep(2)
+                        receive_and_store_message(arduino_port)
+            elif user_routine.lower() == "2":
+                while True:
+                    lat, long = coordinates[user_coordinate]
+                    message = MessageSchema(
+                        type=True,
+                        id=1,
+                        latitude=lat,
+                        longitude=long,
+                        group_flag=False,
+                        record_time=int(time.time()),
+                        max_records=255,
+                        hop_count=15,
+                        channel=3,
+                        location_time=0,
+                        help_flag=2,
+                        battery=3
+                    )
+
+                    if listen_beacon(arduino_port):
+                        time.sleep(4)
+                        send_message(arduino_port, message)
+                        time.sleep(2)
+                        receive_and_store_message(arduino_port)
+
+                    if send_beacon(arduino_port):
+                        receive_and_store_message(arduino_port)
+                        time.sleep(5)
+                        send_message(arduino_port, message)
+            elif user_routine.lower() == "3":
+                exit()
+            else:
+                logging.warning("Wrong input")
         else:
             exit()
 

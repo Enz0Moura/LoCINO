@@ -297,7 +297,7 @@ def main():
         elif user_input == "3":
             hop_count = 0
             while True:
-                user_coordinate = int(input(f"Choose a coordinate between the range {len(coordinates) - 1}:\n "))
+                user_coordinate = int(input(f"Choose a coordinate between the range 0, {len(coordinates) - 1}:\n "))
                 if user_coordinate < 0 or user_coordinate > len(coordinates):
                     logging.warning("Coordinate out of range")
                 else:

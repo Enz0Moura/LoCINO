@@ -23,6 +23,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
         logging.StreamHandler()
     ], level=logging.INFO)
 
+logging.captureWarnings(True)
 
 def receive_and_store_message(arduino_port, use_my_sql=False):
     global message_len
@@ -305,7 +306,7 @@ def main():
             lat, long = coordinates[user_coordinate]
             logging.info(f"Chosen coordinates: {lat}, {long}")
             user_routine = input(
-                "Start sending beacon or receiving beacon? (1 for sending, 2 for receiving, 3 for full routine, 4 to exit)\n")
+                "Start sending beacon or receiving beacon? (1 for sending, 2 for receiving, 3 to exit)\n")
             if user_routine.lower() == "1":
                 while True:
                     message = MessageSchema(

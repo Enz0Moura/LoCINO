@@ -13,3 +13,7 @@ build/
 /PYBackEnd/conf/db/
 /PYBackEnd/db/
 /PYBackEnd/storage/
+
+/db
+/PYBackEnd/arduino_communication/db
+/PYBackEnd/arduino_communication/receiver_side/db

@@ -206,10 +206,12 @@ def main():
     arduino_port = find_arduino_port()
     user_input = input("Use normal coordinates or inverted ones? (n for normal, i for inverted)\n")
     coordinates = [
-        (-22.5118074, -43.1788471),
-        (-22.5099877, -43.1753572),
-        (-22.5087312, -43.1723941),
-        (-22.5071419, -43.1694926)
+        (22.50251, 43.17393),
+        (22.50251, 43.17304),
+        (22.50251, 43.17304),
+        (22.50219, 43.17107),
+        (22.50219, 43.17107),
+        (22.50135, 43.17182),
     ]
     if user_input.lower() == "n":
         coordinates = coordinates
